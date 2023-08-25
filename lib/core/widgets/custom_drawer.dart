@@ -79,7 +79,7 @@ class CustomDrawer extends StatelessWidget {
             leading: const Icon(Icons.home),
             title: const Text("Dashboard"),
             onTap: () {
-              Get.offNamed('/dashboard');
+              Get.offNamed('/dashBoard');
             },
           ),
           ListTile(

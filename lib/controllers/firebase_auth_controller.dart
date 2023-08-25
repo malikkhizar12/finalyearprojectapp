@@ -99,7 +99,15 @@ class FirebaseAuthController extends GetxController {
 
   Future<void> authenticateWithGoogle(BuildContext context) async {
     startLoading();
-  await signInWithGoogle();
+    await signInWithGoogle()
+        .then((User? user) async {
+      print(user);
+      if (user != null) {
+        await performSignUpTask(user);
+      } else {
+        Navigator.pop(context);
+      }
+    });
   }
 
   Future<void> authenticateWithFacebook(BuildContext context) async {
@@ -374,7 +382,7 @@ class FirebaseAuthController extends GetxController {
     }
   }
 
-  Future<UserCredential>signInWithGoogle() async {
+  Future<User?>signInWithGoogle() async {
     try {
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
@@ -388,12 +396,16 @@ class FirebaseAuthController extends GetxController {
       );
 
       // Once signed in, return the UserCredential
-      return await FirebaseAuth.instance.signInWithCredential(credential);
+      final UserCredential userCredential =
+      await _auth.signInWithCredential(credential);
+      final User firebaseUser = userCredential.user!;
+      return firebaseUser;
+
     } catch (e) {
       String errorMessage = handleExceptionError(e);
       print('Error: $errorMessage');
       showToast('Error', errorMessage);
-      throw e;
+      return null;
     }
   }
 
