@@ -1,18 +1,21 @@
 import 'package:get/get.dart';
 
 String? nameValidator(String? value) {
-  if (value!.isEmpty) {
+  if (value == null || value.isEmpty) {
     return "Please enter your name";
   }
-  final regex = RegExp(r'^[a-zA-Z]+$');
+
+  final regex = RegExp(r'^[a-zA-Z\s]+$'); // Allow alphabets and spaces
   if (!regex.hasMatch(value)) {
-    return "Only alphabets are allowed";
-  }
-  else if (value.length < 4) {
+    return "Only alphabets and spaces are allowed";
+  } else if (value.length < 4) {
     return "Name is too short";
   }
+
   return null;
 }
+
+
 
 String? usernameValidator(String? value) {
   if (value!.isEmpty) {

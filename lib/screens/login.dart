@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../controllers/firebase_auth_controller.dart';
+import 'Ratings.dart';
 
 class Login extends StatelessWidget {
   Login({Key? key}) : super(key: key);
@@ -9,6 +10,7 @@ class Login extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<FirebaseAuthController>();
+    final RatingsPage ratingsPage = RatingsPage();
     final size = MediaQuery.of(context).size;
     return SafeArea(
       child: Scaffold(
@@ -56,7 +58,7 @@ class Login extends StatelessWidget {
                       Align(
                         alignment: Alignment.centerRight,
                         child: TextButton(
-                          onPressed: () {},
+                          onPressed: () {Get.toNamed('/ForgotPassword');},
                           child: const Text("Forgot Password?"),
                         ),
                       ),
@@ -66,6 +68,8 @@ class Login extends StatelessWidget {
                         child: ElevatedButton(
                           onPressed: () async {
                             await controller.signInWithEmailPassword(context);
+
+                            // ratingsPage.checkLoginCountAndRatingsStatus();
                           },
                           child: Text("Login".toUpperCase()),
                           style: ElevatedButton.styleFrom(

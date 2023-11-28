@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +26,7 @@ class FirebaseAuthController extends GetxController {
 
   final signupFormKey = GlobalKey<FormState>();
   final signInWithEmailFormKey = GlobalKey<FormState>();
-
+  final _savedCoursesController = StreamController<List<Map<String, dynamic>>>.broadcast();
   final TextEditingController emailController = TextEditingController(),
       passwordController = TextEditingController(),
       nameController = TextEditingController(),
@@ -63,6 +65,179 @@ class FirebaseAuthController extends GetxController {
       }
     });
   }
+  Future<void> storeFeedback(String feedbackText1, String feedbackText2, String feedbackText3) async {
+    try {
+      final user = _auth.currentUser;
+
+      if (user == null) {
+        showToast('Error', 'You need to be logged in to submit feedback', err: true);
+        return;
+      }
+
+      // Create a reference to the feedback collection
+      final feedbackCollection = _firestore.collection('feedback');
+
+      // Create a new document with a unique ID (Firestore will generate one)
+      final newFeedbackDocument = feedbackCollection.doc();
+
+      // Create a data map with the feedback and other relevant information
+      final feedbackData = {
+        'userId': user.uid,
+        'feedbackText1': feedbackText1,
+        'feedbackText2': feedbackText2,
+        'feedbackText3': feedbackText3,
+        'timestamp': FieldValue.serverTimestamp(),
+      };
+
+      // Set the data for the new feedback document
+      await newFeedbackDocument.set(feedbackData);
+
+      showToast('Success', 'Feedback submitted successfully');
+    } catch (e) {
+      print('Error storing feedback: $e');
+      showToast('Error', 'Failed to submit feedback', err: true);
+    }
+  }
+
+
+  Future<List<String>> getSavedCourses() async {
+    try {
+      final user = _auth.currentUser;
+
+      if (user == null) {
+        return [];
+      }
+
+      final snapshot = await _firestore
+          .collection('savedCourses')
+          .where('userId', isEqualTo: user.uid)
+          .get();
+
+      final savedCourses = snapshot.docs.map((doc) => doc['courseURL'] as String).toList();
+      return savedCourses;
+    } catch (e) {
+      print('Error fetching saved courses: $e');
+      return [];
+    }
+  }
+  Future<void> saveCourse(String courseTitle, String courseSummary, String courseDuration, String courseURL) async {
+    try {
+      final user = _auth.currentUser;
+
+      if (user == null) {
+        print('User not logged in');
+        showToast('Error', 'You need to be logged in to save a course', err: true);
+        return;
+      }
+
+      // Check if the course URL already exists in the saved courses list
+      final savedCourses = await getSavedCourses();
+      if (savedCourses.contains(courseURL)) {
+        // Course already saved
+        showToast('Info', 'Course already saved');
+        return;
+      }
+
+      // Save the course to Firestore
+      await _firestore.collection('savedCourses').add({
+        'userId': user.uid,
+        'courseTitle': courseTitle,
+        'courseSummary': courseSummary,
+
+        'courseDuration': courseDuration,
+        'courseURL': courseURL,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      print('Course saved to Firestore');
+      showToast('Success', 'Course saved successfully');
+    } catch (e) {
+      print('Error saving course: $e');
+      showToast('Error', 'Failed to save course', err: true);
+    }
+  }
+  Future<void> deleteCourse(String courseTitle) async {
+    try {
+      final user = _auth.currentUser;
+
+      if (user == null) {
+        print('User not logged in');
+        showToast('Error', 'You need to be logged in to delete a course', err: true);
+        return;
+      }
+
+      // Find the document reference for the course to delete
+      final querySnapshot = await _firestore
+          .collection('savedCourses')
+          .where('userId', isEqualTo: user.uid)
+          .where('courseTitle', isEqualTo: courseTitle)
+          .get();
+
+      final docToDelete = querySnapshot.docs.isNotEmpty ? querySnapshot.docs.first : null;
+
+      if (docToDelete != null) {
+        // Update the document to mark the course as deleted
+        await docToDelete.reference.update({'isDeleted': true});
+        print('Course marked as deleted in Firestore');
+        showToast('Success', 'Course removed from your dashboard');
+      } else {
+        // Course not found
+        showToast('Error', 'Course not found', err: true);
+      }
+    } catch (e) {
+      print('Error deleting course: $e');
+      showToast('Error', 'Failed to delete course', err: true);
+    }
+  }
+
+
+  Stream<List<Map<String, dynamic>>> savedCoursesStream() {
+    _updateSavedCourses(); // Fetch and update saved courses when the stream is requested
+    return _savedCoursesController.stream;
+  }
+
+  void _updateSavedCourses() async {
+    try {
+      final user = _auth.currentUser;
+
+      if (user == null) {
+        _savedCoursesController.add([]); // No user, emit empty list
+        return;
+      }
+
+      final snapshot = await _firestore
+          .collection('savedCourses')
+          .where('userId', isEqualTo: user.uid)
+          .get();
+
+      final savedCourses = snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+      _savedCoursesController.add(savedCourses);
+    } catch (e) {
+      print('Error fetching saved courses: $e');
+      _savedCoursesController.addError(e);
+    }
+  }
+  // Future<List<Map<String, dynamic>>> showSavedCourses() async {
+  //   try {
+  //     final user = _auth.currentUser;
+  //
+  //     if (user == null) {
+  //       return [];
+  //     }
+  //
+  //     final snapshot = await _firestore
+  //         .collection('savedCourses')
+  //         .where('userId', isEqualTo: user.uid)
+  //         .get();
+  //
+  //     final savedCourses = snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+  //
+  //     return savedCourses;
+  //   } catch (e) {
+  //     print('Error fetching saved courses: $e');
+  //     return [];
+  //   }
+  // }
 
   Future<void> signupWithEmailPassword(BuildContext context) async {
     if (!signupFormKey.currentState!.validate()) {

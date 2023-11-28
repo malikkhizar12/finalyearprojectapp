@@ -100,7 +100,7 @@ class CustomDrawer extends StatelessWidget {
             leading: const Icon(Icons.border_color),
             title: const Text("Feedback"),
             onTap: () {
-              // Handle onTap action
+              Get.offNamed('/FeedBackPage');
             },
           ),
           ListTile(

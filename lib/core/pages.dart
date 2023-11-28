@@ -1,9 +1,11 @@
 import 'package:course_guide/screens/preferences.dart';
-import 'package:course_guide/screens/settings.dart';
 import 'package:course_guide/screens/welcomeScreen.dart';
 import 'package:get/get.dart';
+import '../screens/CourseDetailsPage.dart';
+import '../screens/ForgotPassword.dart';
 import '../screens/dashBoard.dart';
 import '../screens/edit_profile.dart';
+import '../screens/feedback.dart';
 import '../screens/login.dart';
 import '../screens/signup.dart';
 import '../screens/splashScreen.dart';
@@ -15,10 +17,13 @@ class Pages {
     GetPage(name: "/login", page: () => Login(), fullscreenDialog: true),
     GetPage(name: "/welcomeScreen", page: () => const WelcomeScreen(), fullscreenDialog: true),
     GetPage(name: "/signup", page: () => SignupPage(), fullscreenDialog: true),
-    GetPage(name: "/dashBoard", page: () =>  DashBoard(),fullscreenDialog: true),
+    GetPage(name: "/dashBoard", page: () =>  Dashboard(),fullscreenDialog: true),
     GetPage(name: '/editProfilePage', page: () => EditProfile(), binding: EditProfileBinding()),
-    GetPage(name: '/settings', page: () =>  SettingsPage(), binding: SettingBinding()),
     GetPage(name: '/preferences', page: () =>  PreferencesPage(), binding: PreferencesBinding()),
+    GetPage(name: '/ForgotPassword', page: () =>  ForgotPassword(),fullscreenDialog: true),
+    GetPage(name: '/CourseDetailsPage', page: () =>  CourseDetailPage(),fullscreenDialog: true),
+    GetPage(name: '/FeedBackPage', page: () =>  FeedbackPage(),fullscreenDialog: true),
+
 
   ];
 }
