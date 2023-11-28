@@ -1,7 +1,9 @@
   import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:course_guide/controllers/setting_drawer_controller.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
   import 'package:flutter/material.dart';
   import 'package:get/get.dart';
@@ -32,6 +34,7 @@ import '../core/collections.dart';
     final SettingDrawerController settingDrawerController = Get.put(SettingDrawerController());
     final FirebaseAuthController firebaseAuthController = Get.put(FirebaseAuthController());
     final controller = Get.find<FirebaseAuthController>();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
     GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
     int numberOfCoursesToShow = 2;
     bool showAllCourses = false;
@@ -487,14 +490,17 @@ import '../core/collections.dart';
             ),
             ),
 
-              StreamBuilder<List<Map<String, dynamic>>>(
-                stream: firebaseAuthController.savedCoursesStream(),
+              StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection('savedCourses')
+                    .where('userId', isEqualTo: FirebaseAuth.instance.currentUser?.uid ?? '').snapshots(),
                 builder: (context, snapshot) {
+
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const CircularProgressIndicator();
                   } else if (snapshot.hasError) {
                     return Text("Error: ${snapshot.error}");
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             // If there are no saved courses, display a message
             return Column(
             children: [
@@ -550,9 +556,7 @@ import '../core/collections.dart';
             ],
             );
             } else {
-            // Display saved courses
-
-            final savedCourses = snapshot.data!.toList();
+            final savedCourses = snapshot.data!.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
             print("courses length");
             print(savedCourses.length);
             print(showAllCourses);
