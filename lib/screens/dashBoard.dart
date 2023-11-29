@@ -211,7 +211,7 @@ import '../core/collections.dart';
                   children: [
                     const SizedBox(height: 35),
                     Text(
-                      "Course Guide ".toUpperCase(),
+                      "Course Guide By Asif".toUpperCase(),
                       style: const TextStyle(
                         fontSize: 29,
                         color: Colors.redAccent,
