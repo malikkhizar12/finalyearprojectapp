@@ -33,6 +33,7 @@ import '../core/collections.dart';
     final CustomDrawerController drawerController = Get.put(CustomDrawerController());
     final SettingDrawerController settingDrawerController = Get.put(SettingDrawerController());
     final FirebaseAuthController firebaseAuthController = Get.put(FirebaseAuthController());
+    FirebaseAuthController authController = FirebaseAuthController();
     final controller = Get.find<FirebaseAuthController>();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
     GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
@@ -106,8 +107,8 @@ import '../core/collections.dart';
           'level': levelController.text.toLowerCase(),
         }),
       );
-      print('Response status code: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      // print('Response status code: ${response.statusCode}');
+      // print('Response body: ${response.body}');
 
       setState(() {
         isFetchingRecommendations = false;
@@ -219,7 +220,7 @@ import '../core/collections.dart';
                     ),
                     const SizedBox(height: 35),
                     Text(
-                      "search for Best Courses ".toUpperCase(),
+                      "search for Best Courses By Khizar ".toUpperCase(),
                       style: const TextStyle(
                         fontSize: 22,
                         color: Colors.black,
@@ -300,7 +301,20 @@ import '../core/collections.dart';
                             width: double.infinity,
                             height: 45,
                             child: ElevatedButton(
-                              onPressed: isFetchingRecommendations ? null : fetchRecommendedCourses,
+                              onPressed: isFetchingRecommendations ? null : () async {
+                                // Save the search term before triggering the search
+                                String searchWord = customFieldController.text;
+
+                                // Call the function to save the search word
+                                await authController.saveSearchWord(searchWord);
+
+
+                                // Optionally, you can save the searchWord in a list for future reference
+                                // savedSearchWords.add(searchWord);
+
+                                // Trigger the search
+                                fetchRecommendedCourses();
+                              },
                               child: isFetchingRecommendations
                                   ? CircularProgressIndicator()
                                   : Text('Search Courses'.toUpperCase()),
@@ -310,6 +324,7 @@ import '../core/collections.dart';
                               ),
                             ),
                           ),
+
 
                           if (recommendedCourseTitles.isNotEmpty)
                             Column(
@@ -354,10 +369,7 @@ import '../core/collections.dart';
 
                                     return GestureDetector(
                                       onTap: () {
-                                        print("title from server");
-                                        print(recommendedCourseTitles[index]);
-                                        print("course from server");
-                                        print(recommendedCourseURL[index]);
+
 
                                         Get.toNamed(
                                           '/CourseDetailsPage',
@@ -375,11 +387,7 @@ import '../core/collections.dart';
                                       child: Container(
                                         padding: const EdgeInsets.all(15),
                                         decoration: BoxDecoration(
-                                          gradient: const LinearGradient(
-                                            colors:  [Color(0xFF6FB1FF), Color(0xFFFF9AA2)],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          ),
+                                          color: Colors.lightBlueAccent.withOpacity(0.3),
                                           borderRadius: BorderRadius.circular(15),
                                           boxShadow: [
                                             BoxShadow(
@@ -515,11 +523,7 @@ import '../core/collections.dart';
             Container(
             padding: const EdgeInsets.all(15),
             decoration: BoxDecoration(
-            gradient: const LinearGradient(
-            colors:  [Color(0xFF6FB1FF), Color(0xFFFF9AA2)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            ),
+              color: Colors.lightBlueAccent.withOpacity(0.3),
             borderRadius: BorderRadius.circular(15),
             boxShadow: [
             BoxShadow(
@@ -606,12 +610,7 @@ import '../core/collections.dart';
               child: Container(
             padding: const EdgeInsets.all(15),
             decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors:  [Color(0xFF6FB1FF), Color(0xFFFF9AA2)],
-
-              begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            ),
+              color: Colors.lightBlueAccent.withOpacity(0.3),
             borderRadius: BorderRadius.circular(15),
             boxShadow: [
             BoxShadow(

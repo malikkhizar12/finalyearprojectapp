@@ -120,7 +120,7 @@ class FirebaseAuthController extends GetxController {
       return [];
     }
   }
-  Future<void> saveCourse(String courseTitle, String courseSummary, String courseDuration, String courseURL) async {
+  Future<void> saveCourse(String courseTitle, String courseSummary,String coursePlatform, String courseDuration, String courseURL) async {
     try {
       final user = _auth.currentUser;
 
@@ -143,13 +143,13 @@ class FirebaseAuthController extends GetxController {
         'userId': user.uid,
         'courseTitle': courseTitle,
         'courseSummary': courseSummary,
-
+        'coursePlatform': coursePlatform,
         'courseDuration': courseDuration,
         'courseURL': courseURL,
         'timestamp': FieldValue.serverTimestamp(),
       });
 
-      print('Course saved to Firestore');
+
       showToast('Success', 'Course saved successfully');
     } catch (e) {
       print('Error saving course: $e');
@@ -238,7 +238,37 @@ class FirebaseAuthController extends GetxController {
   //     return [];
   //   }
   // }
+  Future<void> saveSearchWord(String searchWord) async {
+    // Reference to the Firestore collection where you want to store search words
+    CollectionReference searchWordsCollection = FirebaseFirestore.instance.collection('searchWords');
 
+    // Add the search word to Firestore
+    await searchWordsCollection.add({
+      'word': searchWord,
+      'timestamp': FieldValue.serverTimestamp(), // Optional: Add a timestamp for sorting or tracking when the search occurred
+    });
+    print("search words saved");
+  }
+  Future<List<String>> fetchSavedSearchWords() async {
+    try {
+      // Reference to the Firestore collection where search words are stored
+      CollectionReference searchWordsCollection = FirebaseFirestore.instance.collection('searchWords');
+
+      // Fetch all documents from the collection
+      QuerySnapshot<Object?> snapshot = await searchWordsCollection.get();
+
+      // Extract search words from the documents
+      List<String> searchWords = snapshot.docs.map((doc) => doc['word'] as String).toList();
+
+      // Optionally, you can print the search words
+      print("Saved Search Words: $searchWords");
+
+      return searchWords;
+    } catch (e) {
+      print('Error fetching saved search words: $e');
+      return [];
+    }
+  }
   Future<void> signupWithEmailPassword(BuildContext context) async {
     if (!signupFormKey.currentState!.validate()) {
       return;
