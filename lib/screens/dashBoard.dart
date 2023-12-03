@@ -220,7 +220,11 @@ import '../core/collections.dart';
                     ),
                     const SizedBox(height: 35),
                     Text(
+<<<<<<< HEAD
                       "search for Best Courses By KhizarHayyat ".toUpperCase(),
+=======
+                      "search for Best Courses By Khizar ".toUpperCase(),
+>>>>>>> ed525178e4b54f3d587dc8f1861da549c1048487
                       style: const TextStyle(
                         fontSize: 22,
                         color: Colors.black,
