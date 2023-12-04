@@ -64,6 +64,7 @@ import '../core/collections.dart';
   }
 
   class Dashboard extends StatefulWidget {
+
     @override
     _DashboardState createState() => _DashboardState();
   }
@@ -96,7 +97,7 @@ import '../core/collections.dart';
       }
 
       // const apiUrl = 'https://courseguide.cyclic.cloud/recommend';
-      const apiUrl = 'http://192.168.18.4:5000/recommend';
+      const apiUrl = 'http://192.168.18.85:5000/recommend';
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {'Content-Type': 'application/json'},
@@ -220,7 +221,7 @@ import '../core/collections.dart';
                     ),
                     const SizedBox(height: 35),
                     Text(
-                      "search for Best Courses By KhizarHayyat ".toUpperCase(),
+                      "search for Best Courses ".toUpperCase(),
                       style: const TextStyle(
                         fontSize: 22,
                         color: Colors.black,
@@ -317,8 +318,13 @@ import '../core/collections.dart';
                               },
                               child: isFetchingRecommendations
                                   ? CircularProgressIndicator()
-                                  : Text('Search Courses'.toUpperCase()),
+                                  : Text('Search Courses'.toUpperCase(), style: TextStyle(
+                                color: Colors.white, // Change the text color to white
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16// Change the font weight to bold
+                              ),),
                               style: ElevatedButton.styleFrom(
+
                                 backgroundColor: Colors.red.withOpacity(0.7),
                                 shape: const RoundedRectangleBorder(),
                               ),
@@ -436,268 +442,258 @@ import '../core/collections.dart';
       ]
           );
 
-        case PageState.State2:
-          return Stack(
-            children:[
+      case PageState.State2:
+      return Stack(
+      children: [
       Image.asset(
-        'assets/images/edit_profile_background.webp', // Replace with the actual path to your background image
+      'assets/images/edit_profile_background.webp',
       fit: BoxFit.cover,
       width: double.infinity,
       height: double.infinity,
       ),
+      SingleChildScrollView(
+      child: Container(
+      padding: const EdgeInsets.all(29),
+      child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+      const SizedBox(
+      height: 15,
+      ),
+      const Text(
+      "DashBoard",
+      style: TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: 35,
+      color: Colors.redAccent,
+      ),
+      ),
+      const SizedBox(
+      height: 40,
+      ),
+      Container(
+      child: TextFormField(
+      style: TextStyle(color: Colors.black),
+      decoration: InputDecoration(
+      labelText: "Search",
+      hintText: "Search",
+      labelStyle: TextStyle(color: Colors.black),
+      hintStyle: TextStyle(color: Colors.black),
+      enabledBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: Colors.black, width: 2.0),
+      ),
+      focusedBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: Colors.black, width: 2.0),
+      ),
+      suffixIcon: Icon(Icons.search_rounded, color: Colors.black),
+      ),
+      ),
+      ),
+      const SizedBox(
+      height: 15,
+      ),
+      Text(
+      "Saved Courses",
+      style: TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: 30,
+      color: Colors.black.withOpacity(0.8),
+      ),
+      ),
+      StreamBuilder(
+      stream: FirebaseFirestore.instance
+          .collection('savedCourses')
+          .where('userId', isEqualTo: FirebaseAuth.instance.currentUser?.uid ?? '')
+          .snapshots(),
+      builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+      return const CircularProgressIndicator();
+      } else if (snapshot.hasError) {
+      return Text("Error: ${snapshot.error}");
+      } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+      // If there are no saved courses, display a message
+      return Column(
+      children: [
+      SizedBox(height: 30,),
+      Center(
+      child: Container(
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+      color: Colors.lightBlueAccent.withOpacity(0.3),
+      borderRadius: BorderRadius.circular(15),
+      boxShadow: [
+      BoxShadow(
+      color: Colors.grey.withOpacity(0.3),
+      spreadRadius: 2,
+      blurRadius: 5,
+      offset: const Offset(0, 3),
+      ),
+      ],
+      ),
+      child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: const [
+      Text(
+      "Your saved courses will be shown here.",
+      style: TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: 18,
+      color: Color(0xFF37474F),
+      ),
+      ),
+      const SizedBox(height: 10),
+      Text(
+      "Start exploring and saving courses now!",
+      maxLines: 3,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(
+      color: Color(0xFF607D8B),
+      ),
+      ),
+      ],
+      ),
+      ),
+      ),
+      ],
+      );
+      } else {
+      final savedCourses = snapshot.data!.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+      print("courses length");
+      print(savedCourses.length);
+      print(showAllCourses);
 
-             SingleChildScrollView(
-            child: Container(
-            padding: const EdgeInsets.all(29),
-            child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(
-                height: 15,
-              ),
-            const Text(
+      return Column(
+      children: [
+      GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 2,
+      mainAxisSpacing: 20,
+      crossAxisSpacing: 20,
+      ),
+      itemCount: showAllCourses ? savedCourses.length : numberOfCoursesToShow,
+      itemBuilder: (context, index) {
+      final courseData = savedCourses[index];
 
-            "DashBoard",
-            style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 35,
-            color: Colors.redAccent,
-            ),
-            ),
-            const SizedBox(
-            height: 40,
-            ),
-              Container(
-                child: TextFormField(
-                  style: TextStyle(color: Colors.black), // Set text color
-                  decoration: InputDecoration(
-                    labelText: "Search",
-                    hintText: "Search",
-                    labelStyle: TextStyle(color: Colors.black), // Set label text color
-                    hintStyle: TextStyle(color: Colors.black), // Set hint text color
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black, width: 2.0), // Specify the border color and width
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black, width: 2.0), // Specify the border color and width when focused
-                    ),
-                    suffixIcon: Icon(Icons.search_rounded, color: Colors.black), // Set icon color
-                  ),
-                ),
-              ),
+      // Use the null-aware and null coalescing operators to safely access properties
+      String courseTitle = courseData['courseTitle']?.toString() ?? "Course Title";
+      String courseSummary = courseData['courseSummary']?.toString() ?? "Course Summary";
+      String courseURL = courseData['course URL']?.toString() ?? "Course URL";
+      String courseCost = courseData['courseCost']?.toString() ?? "Course Cost";
+      String courseDuration = courseData['courseDuration']?.toString() ?? "Course Duration";
+      String coursePlatform = courseData['coursePlatform']?.toString() ?? "Course Platform";
+      print(courseTitle);
+      return GestureDetector(
+      onTap: () {
+      print("title from saved");
+      print(courseTitle);
+      print("course from saved");
+      print(courseURL);
+      Get.toNamed(
+      '/CourseDetailsPage',
+      arguments: {
+      'courseTitle': courseTitle,
+      'courseSummary': courseSummary,
+      'courseDuration':courseDuration,
+      'courseURL': courseURL,
+      'coursePlatform': coursePlatform,
+      'isSavedCourse': true,
+      },
+      );
+      },
 
-              const SizedBox(
-            height: 15,
-            ),
-            Text(
-            "Saved Courses",
-            style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 30,
-            color: Colors.black.withOpacity(0.8),
-            ),
-            ),
+      child: Container(
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+      color: Colors.lightBlueAccent.withOpacity(0.3),
+      borderRadius: BorderRadius.circular(15),
+      boxShadow: [
+      BoxShadow(
+      color: Colors.grey.withOpacity(0.3),
+      spreadRadius: 2,
+      blurRadius: 5,
+      offset: const Offset(0, 3),
+      ),
+      ],
+      ),
+      child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+      Text(
+      limitTitle(courseTitle, 2), // Limit to 2 words
+      style: const TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: 18,
+      color: Color(0xFF37474F),
+      ),
+      ),
+      const SizedBox(height: 10),
+      Text(
+      courseSummary,
+      maxLines: 3,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(
+      color: Color(0xFF607D8B),
+      ),
+      ),
+      ],
+      ),
+      ),
+      );
+      },
+      ),
+      const SizedBox(
+      height: 10,
+      ),
+      Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+      TextButton(
+      onPressed: () {
+      setState(() {
+      if (showAllCourses) {
+      numberOfCoursesToShow = 2;
+      }
+      showAllCourses = !showAllCourses;
+      });
+      },
+      child: Text(
+      showAllCourses ? "Hide" : "See All",
+      style: const TextStyle(
+      color: Colors.black,
+      fontWeight: FontWeight.bold,
+      ),
+      ),
+      ),
+      ],
+      ),
+      ],
+      );
+      }
+      },
+      ),
+      const SizedBox(
+      height: 20,
+      ),
+      Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+      "Related Courses",
+      style: TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: 30,
+      color: Colors.black.withOpacity(0.8),
+      ),
+      ),
+      ),
+      ],
+      ),
+      ),
+      ),]
+      );
 
-              StreamBuilder(
-                stream: FirebaseFirestore.instance
-                    .collection('savedCourses')
-                    .where('userId', isEqualTo: FirebaseAuth.instance.currentUser?.uid ?? '').snapshots(),
-                builder: (context, snapshot) {
-
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  } else if (snapshot.hasError) {
-                    return Text("Error: ${snapshot.error}");
-            } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            // If there are no saved courses, display a message
-            return Column(
-            children: [
-            Text(
-            "No saved courses found.",
-            style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-            color: Colors.black.withOpacity(0.8), // Make the text more vibrant
-            ),
-            ),
-            Container(
-            padding: const EdgeInsets.all(15),
-            decoration: BoxDecoration(
-              color: Colors.lightBlueAccent.withOpacity(0.3),
-            borderRadius: BorderRadius.circular(15),
-            boxShadow: [
-            BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-            ),
-            ],
-            ),
-            child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-            Text(
-            "Your saved courses will be shown here.",
-            style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-            color: Color(0xFF37474F),
-            ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-            "Start exploring and saving courses now!",
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-            color: Color(0xFF607D8B),
-            ),
-            ),
-            ],
-            ),
-            ),
-            ],
-            );
-            } else {
-            final savedCourses = snapshot.data!.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
-            print("courses length");
-            print(savedCourses.length);
-            print(showAllCourses);
-
-            return Column(
-            children: [
-            GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            mainAxisSpacing: 20,
-            crossAxisSpacing: 20,
-            ),
-            itemCount: showAllCourses ? savedCourses.length : numberOfCoursesToShow,
-            itemBuilder: (context, index) {
-            final courseData = savedCourses[index];
-
-
-            // Use the null-aware and null coalescing operators to safely access properties
-            String courseTitle = courseData['courseTitle']?.toString() ?? "Course Title";
-            String courseSummary = courseData['courseSummary']?.toString() ?? "Course Summary";
-            String courseURL = courseData['course URL']?.toString() ?? "Course URL";
-            String courseCost = courseData['courseCost']?.toString() ?? "Course Cost";
-            String courseDuration = courseData['courseDuration']?.toString() ?? "Course Duration";
-            String coursePlatform = courseData['coursePlatform']?.toString() ?? "Course Platform";
-            print(courseTitle);
-            return GestureDetector(
-              onTap: () {
-                print("title from saved");
-                print(courseTitle);
-                print("course from saved");
-                print(courseURL);
-                Get.toNamed(
-                  '/CourseDetailsPage',
-                  arguments: {
-                    'courseTitle': courseTitle,
-                    'courseSummary': courseSummary,
-                    'courseDuration':courseDuration,
-                    'courseURL': courseURL,
-                    'coursePlatform': coursePlatform,
-                    'isSavedCourse': true,
-                  },
-                );
-              },
-
-              child: Container(
-            padding: const EdgeInsets.all(15),
-            decoration: BoxDecoration(
-              color: Colors.lightBlueAccent.withOpacity(0.3),
-            borderRadius: BorderRadius.circular(15),
-            boxShadow: [
-            BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-            ),
-            ],
-            ),
-            child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-            Text(
-            limitTitle(courseTitle, 2), // Limit to 2 words
-            style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-            color: Color(0xFF37474F),
-            ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-            courseSummary,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-            color: Color(0xFF607D8B),
-            ),
-            ),
-            ],
-            ),
-            ),
-            );
-            },
-            ),
-            const SizedBox(
-            height: 10,
-            ),
-            Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-            TextButton(
-            onPressed: () {
-            setState(() {
-            if (showAllCourses) {
-            numberOfCoursesToShow = 2;
-            }
-            showAllCourses = !showAllCourses;
-            });
-            },
-            child: Text(
-            showAllCourses ? "Hide" : "See All",
-            style: const TextStyle(
-            color: Colors.black, // Set the text color to black
-            fontWeight: FontWeight.bold,
-            ),
-            ),
-            ),
-            ],
-            ),
-              const SizedBox(
-                height: 20, // Add some spacing between "See More" and "Related Courses"
-              ),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Related Courses",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 30,
-                    color: Colors.black.withOpacity(0.8),
-                  ),
-                ),
-              ),
-            ],
-            );
-            }
-            },
-            ),
-            ],
-            ),
-            ),
-            ),
-      ]
-          );
-        case PageState.State3:
+      case PageState.State3:
           backgroundColor = Colors.orange;
           double screenHeight = MediaQuery.of(context).size.height;
           double screenWidth = MediaQuery.of(context).size.width;
@@ -900,7 +896,11 @@ import '../core/collections.dart';
                               onPressed: () async {
                                 Get.offNamed('/login');
                               },
-                              child: Text("Logout".toUpperCase()),
+                              child: Text("Logout".toUpperCase(), style: TextStyle(
+                                color: Colors.white, // Change the text color to white
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16// Change the font weight to bold
+                              ),),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.red.withOpacity(0.7),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),

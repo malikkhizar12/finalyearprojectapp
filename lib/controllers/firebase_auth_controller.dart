@@ -379,9 +379,9 @@ class FirebaseAuthController extends GetxController {
           'photoUrl': photoUrl,
         }).then((value) {
           clearController();
-          print('New User');
+
           showToast('Welcome', 'Your account has been created');
-          Get.offAndToNamed('/preferences');
+          Get.offAndToNamed('/dashBoard');
         });
       } else {
         clearController();
