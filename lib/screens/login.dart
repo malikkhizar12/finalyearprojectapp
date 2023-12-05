@@ -62,22 +62,33 @@ class Login extends StatelessWidget {
                           child: const Text("Forgot Password?"),
                         ),
                       ),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 45,
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            await controller.signInWithEmailPassword(context);
+                      ElevatedButton(
+                        onPressed: () async {
+                          // Perform sign-in
+                          await controller.signInWithEmailPassword(context);
 
-                            // ratingsPage.checkLoginCountAndRatingsStatus();
-                          },
-                          child: Text("Login".toUpperCase()),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red.withOpacity(0.7),
-                            shape: const RoundedRectangleBorder(),
+                          // Fetch saved search words
+                          List<String> searchWords = await controller.fetchSavedSearchWords();
+
+                          // Send search words to the backend API
+                          //await sendSearchWordsToBackend(searchWords);
+
+                          // ratingsPage.checkLoginCountAndRatingsStatus();
+                        },
+                        child: Text(
+                          "Login".toUpperCase(),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red.withOpacity(0.7),
+                          shape: const RoundedRectangleBorder(),
+                        ),
                       ),
+
                       const SizedBox(height: 06),
                       Align(
                         alignment: Alignment.center,

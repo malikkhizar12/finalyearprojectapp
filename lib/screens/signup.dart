@@ -171,14 +171,16 @@ class SignupPage extends StatelessWidget {
                           onPressed: () async {
                             await controller.signupWithEmailPassword(context);
                           },
-                          child: Text("Sign Up".toUpperCase()),
+                          child: Text("Sign Up".toUpperCase(),
+                              style: TextStyle(color: Colors.white,fontSize: 16,
+                              fontWeight: FontWeight.bold)),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red.withOpacity(0.7),
                             shape: RoundedRectangleBorder(),
                           ),
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       Column(

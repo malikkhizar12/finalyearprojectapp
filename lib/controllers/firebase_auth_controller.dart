@@ -249,26 +249,26 @@ class FirebaseAuthController extends GetxController {
     });
     print("search words saved");
   }
-  Future<List<String>> fetchSavedSearchWords() async {
-    try {
-      // Reference to the Firestore collection where search words are stored
-      CollectionReference searchWordsCollection = FirebaseFirestore.instance.collection('searchWords');
+    Future<List<String>> fetchSavedSearchWords() async {
+      try {
+        // Reference to the Firestore collection where search words are stored
+        CollectionReference searchWordsCollection = FirebaseFirestore.instance.collection('searchWords');
 
-      // Fetch all documents from the collection
-      QuerySnapshot<Object?> snapshot = await searchWordsCollection.get();
+        // Fetch all documents from the collection
+        QuerySnapshot<Object?> snapshot = await searchWordsCollection.get();
 
-      // Extract search words from the documents
-      List<String> searchWords = snapshot.docs.map((doc) => doc['word'] as String).toList();
+        // Extract search words from the documents
+        List<String> searchWords = snapshot.docs.map((doc) => doc['word'] as String).toList();
 
-      // Optionally, you can print the search words
-      print("Saved Search Words: $searchWords");
+        // Optionally, you can print the search words
+        print("Saved Search Words: $searchWords");
 
-      return searchWords;
-    } catch (e) {
-      print('Error fetching saved search words: $e');
-      return [];
+        return searchWords;
+      } catch (e) {
+        print('Error fetching saved search words: $e');
+        return [];
+      }
     }
-  }
   Future<void> signupWithEmailPassword(BuildContext context) async {
     if (!signupFormKey.currentState!.validate()) {
       return;
