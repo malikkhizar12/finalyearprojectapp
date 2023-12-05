@@ -140,6 +140,7 @@ class FirebaseAuthController extends GetxController {
 
       // Save the course to Firestore
       await _firestore.collection('savedCourses').add({
+        'isDeleted' : false,
         'userId': user.uid,
         'courseTitle': courseTitle,
         'courseSummary': courseSummary,
@@ -177,7 +178,7 @@ class FirebaseAuthController extends GetxController {
 
       if (docToDelete != null) {
         // Update the document to mark the course as deleted
-        await docToDelete.reference.update({'isDeleted': true});
+        await docToDelete.reference.delete();
         print('Course marked as deleted in Firestore');
         showToast('Success', 'Course removed from your dashboard');
       } else {

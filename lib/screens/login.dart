@@ -7,6 +7,32 @@ import 'package:get/get.dart';
 import '../controllers/firebase_auth_controller.dart';
 import 'Ratings.dart';
 
+
+Future<void> sendSearchWordsToBackend(List<String> searchWords) async {
+  const apiUrl = 'http://192.168.73.159:5000/suggestions'; // Replace with your actual API endpoint
+
+  try {
+    // Make a POST request to the API with search words in the request body
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({'search_words': searchWords}),
+    );
+
+    if (response.statusCode == 200) {
+      // Successfully received recommendations, you can handle the response here
+      print('API Response: ${response.body}');
+    } else {
+      // Handle API errors here
+      print('API Error: ${response.statusCode}, ${response.body}');
+    }
+  } catch (e) {
+    // Handle network or other errors here
+    print('Error sending search words: $e');
+  }
+}
+
+
 class Login extends StatelessWidget {
   Login({Key? key}) : super(key: key);
 
@@ -15,29 +41,6 @@ class Login extends StatelessWidget {
     final controller = Get.find<FirebaseAuthController>();
     final RatingsPage ratingsPage = RatingsPage();
     final size = MediaQuery.of(context).size;
-    Future<void> sendSearchWordsToBackend(List<String> searchWords) async {
-      const apiUrl = 'http://192.168.18.85:5000/suggestions'; // Replace with your actual API endpoint
-
-      try {
-        // Make a POST request to the API with search words in the request body
-        final response = await http.post(
-          Uri.parse(apiUrl),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({'search_words': searchWords}),
-        );
-
-        if (response.statusCode == 200) {
-          // Successfully received recommendations, you can handle the response here
-          print('API Response: ${response.body}');
-        } else {
-          // Handle API errors here
-          print('API Error: ${response.statusCode}, ${response.body}');
-        }
-      } catch (e) {
-        // Handle network or other errors here
-        print('Error sending search words: $e');
-      }
-    }
     return SafeArea(
       child: Scaffold(
         backgroundColor: const Color(0xffFBF3EF),
@@ -66,7 +69,7 @@ class Login extends StatelessWidget {
                 Form(
                   key: controller.signInWithEmailFormKey,
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       TextFormField(
                         controller: controller.loginEmailController,
