@@ -123,7 +123,7 @@ class Login extends StatelessWidget {
                         alignment: Alignment.center,
                         child: TextButton(
                           onPressed: () {
-                            Get.toNamed('/signup');
+                            Get.offAllNamed('/signup');
                           },
                           child: RichText(
                             text: TextSpan(

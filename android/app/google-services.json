@@ -14,11 +14,27 @@
       },
       "oauth_client": [
         {
+          "client_id": "860210445225-e93u34c8bef87i29d3sbqhcdnptud5to.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.course_guide_app",
+            "certificate_hash": "9b385c2480c2c98ee4196cb6e34f0889cb025e8f"
+          }
+        },
+        {
           "client_id": "860210445225-g6o1te24gcs1mnctbn9hdt68uar48tdu.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.course_guide_app",
             "certificate_hash": "ef18d0b2b373d5034197a4c3c64ed26ee10a99b8"
+          }
+        },
+        {
+          "client_id": "860210445225-oia3s0s1ihv7e3s6oghh0059fmgsr5ri.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.course_guide_app",
+            "certificate_hash": "0b620a9784817a3439e4674d42285745834c3132"
           }
         },
         {
@@ -39,10 +55,10 @@
               "client_type": 3
             },
             {
-              "client_id": "860210445225-jg1dpu3k6t1ifa3tfv1noj14aq0fhm47.apps.googleusercontent.com",
+              "client_id": "860210445225-fa5d378trdas661nt1hh3km6lnr5ejnb.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.example.courseGuideApp"
+                "bundle_id": "com.example.courseGuide"
               }
             }
           ]

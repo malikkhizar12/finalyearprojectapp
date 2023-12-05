@@ -46,9 +46,7 @@ class WelcomeScreen extends StatelessWidget {
                       color: Colors.black,
                     fontSize: 15
                   ),) ,
-                onPressed: (){
-                  controller.authenticateWithGoogle(context);
-                },
+                onPressed: () async => await controller.authenticateWithGoogle(context),
                 style: OutlinedButton.styleFrom(
                   shape: const RoundedRectangleBorder(),
                     side: const BorderSide(width: 0.4,color: Colors.black)
@@ -83,7 +81,7 @@ class WelcomeScreen extends StatelessWidget {
                      height: 45,
                      child: ElevatedButton(
                       onPressed: () {
-                        Get.toNamed('/login');
+                        Get.offAllNamed('/login');
                       },
                       child: Text("Login with Email".toUpperCase()),
 
@@ -100,7 +98,7 @@ class WelcomeScreen extends StatelessWidget {
             Center(
               child: TextButton(
                 onPressed: () {
-                  Get.toNamed('/signup');
+                  Get.offAllNamed('/signup');
                 },
                 child: Text(
                   "dont't have an account? Sign up",

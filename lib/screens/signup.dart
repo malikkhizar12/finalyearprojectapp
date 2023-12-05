@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../controllers/firebase_auth_controller.dart';
+import '../core/functions.dart';
 
 class SignupPage extends StatelessWidget {
   @override
@@ -200,7 +201,13 @@ class SignupPage extends StatelessWidget {
                                 "Continue with Google",
                                 style: TextStyle(color: Colors.black),
                               ),
-                              onPressed: () {},
+                              onPressed: () async {
+                                if(controller.selectedEducationStatus.isEmpty){
+                                  showToast('Please Select Education status', 'Education Status ca\'t be empty');
+                                  return;
+                                }
+                                await controller.authenticateWithGoogle(context);
+                              },
                               style: OutlinedButton.styleFrom(
                                 shape: RoundedRectangleBorder(),
                               ),
@@ -210,7 +217,7 @@ class SignupPage extends StatelessWidget {
                             alignment: Alignment.center,
                             child: TextButton(
                               onPressed: () {
-                                Get.toNamed('/login');
+                                Get.offAllNamed('/login');
                               },
                               child: RichText(
                                 text: TextSpan(
