@@ -269,6 +269,7 @@ class FirebaseAuthController extends GetxController {
         return [];
       }
     }
+
   Future<void> signupWithEmailPassword(BuildContext context) async {
     if (!signupFormKey.currentState!.validate()) {
       return;

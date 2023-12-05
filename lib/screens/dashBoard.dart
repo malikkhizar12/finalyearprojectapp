@@ -97,7 +97,7 @@ import '../core/collections.dart';
       }
 
       // const apiUrl = 'https://courseguide.cyclic.cloud/recommend';
-      const apiUrl = 'http://192.168.18.85:5000/recommend';
+      const apiUrl = 'http://127.0.0.1:5000/recommend';
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {'Content-Type': 'application/json'},
