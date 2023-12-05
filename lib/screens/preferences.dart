@@ -39,33 +39,34 @@ class _PreferencesPageState extends State<PreferencesPage> {
   List<String> recommendedCourseDuration = [];
   List<String> recommendedCourseURL = [];
   List<String> recommendedCoursePlatform = [];
+  void showNoCoursesDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('No Courses Found'),
+          content: const Text('Sorry, no courses were found related to your search criteria.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void fetchRecommendedCourses() async {
     setState(() {
       isFetchingRecommendations = true;
     });
-    void showNoCoursesDialog(BuildContext context) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('No Courses Found'),
-            content: Text('Sorry, no courses were found related to your search criteria.'),
-            actions: <Widget>[
-              TextButton(
-                child: Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
 
     // const apiUrl = 'https://courseguide.cyclic.cloud/recommend';
-    const apiUrl = 'http://127.0.0.1:5000/recommend';
+    // const apiUrl = 'http://192.168.18.4:5000/recommend';
+    const apiUrl = 'http://192.168.73.159:5000/recommend';
     final response = await http.post(
       Uri.parse(apiUrl),
       headers: {'Content-Type': 'application/json'},
@@ -101,6 +102,9 @@ class _PreferencesPageState extends State<PreferencesPage> {
       }
     } else {
       // Handle API errors here
+      setState(() {
+        isFetchingRecommendations = false;
+      });
     }
   }
 
@@ -184,7 +188,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
                           selectedDuration = newValue!;
                         });
                       },
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         prefixIcon: Icon(Icons.access_time),
                         labelText: "Duration",
                         border: OutlineInputBorder(),
@@ -202,7 +206,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
                       onChanged: (newValue) {
                         levelController.text = newValue!;
                       },
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         prefixIcon: Icon(Icons.fingerprint_rounded),
                         labelText: "Level",
                         border: OutlineInputBorder(),
@@ -220,7 +224,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
                       onChanged: (newValue) {
                         costController.text = newValue!;
                       },
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         prefixIcon: Icon(Icons.attach_money_rounded),
                         labelText: "Cost",
                         border: OutlineInputBorder(),
@@ -229,7 +233,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
                     const SizedBox(height: 20),
                     TextFormField(
                       controller: customFieldController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Course Name',
                         hintText: 'Course Name',
                         border: OutlineInputBorder(),
@@ -241,13 +245,13 @@ class _PreferencesPageState extends State<PreferencesPage> {
                       height: 45,
                       child: ElevatedButton(
                         onPressed: isFetchingRecommendations ? null : fetchRecommendedCourses,
-                        child: isFetchingRecommendations
-                            ? CircularProgressIndicator()
-                            : Text('Search Courses'.toUpperCase()),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red.withOpacity(0.7),
-                          shape: RoundedRectangleBorder(),
+                          shape: const RoundedRectangleBorder(),
                         ),
+                        child: isFetchingRecommendations
+                            ? const CircularProgressIndicator()
+                            : Text('Search Courses'.toUpperCase()),
                       ),
                     ),
 
@@ -256,7 +260,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const SizedBox(height: 20),
-                          Text(
+                          const Text(
                             'Best Recommended Courses:',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
@@ -266,8 +270,8 @@ class _PreferencesPageState extends State<PreferencesPage> {
                           const SizedBox(height: 15),
                           GridView.builder(
                             shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 2,
                               mainAxisSpacing: 20,
                               crossAxisSpacing: 20,
@@ -310,7 +314,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
                                 child: Container(
                                   padding: const EdgeInsets.all(15),
                                   decoration: BoxDecoration(
-                                    gradient: LinearGradient(
+                                    gradient: const LinearGradient(
                                       colors: [Color(0xFFE0E6F8), Color(0xFFF0F0F0)],
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
@@ -321,7 +325,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
                                         color: Colors.grey.withOpacity(0.3),
                                         spreadRadius: 2,
                                         blurRadius: 5,
-                                        offset: Offset(0, 3),
+                                        offset: const Offset(0, 3),
                                       ),
                                     ],
                                   ),
@@ -330,7 +334,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
                                     children: [
                                       Text(
                                         displayedTitle,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 18,
                                           color: Color(0xFF37474F),
@@ -341,7 +345,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
                                         recommendedCourseSummary[index],
                                         maxLines: 2, // Adjust this value to limit the number of lines for summary
                                         overflow: TextOverflow.ellipsis, // Use ellipsis (...) for overflow
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           color: Color(0xFF607D8B),
                                         ),
                                       ),
