@@ -18,7 +18,6 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]).then((value) => runApp(MyApp()));}
 
-
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

@@ -591,8 +591,8 @@ class FirebaseAuthController extends GetxController {
 
   Future<User?>signInWithGoogle() async {
     try {
+      await GoogleSignIn().signOut();
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-
       // Obtain the auth details from the request
       final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
 
@@ -609,6 +609,7 @@ class FirebaseAuthController extends GetxController {
       return firebaseUser;
 
     } catch (e) {
+      print(e);
       String errorMessage = handleExceptionError(e);
       print('Error: $errorMessage');
       showToast('Error', errorMessage);

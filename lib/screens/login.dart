@@ -156,7 +156,7 @@ class _LoginState extends State<Login> {
                         alignment: Alignment.center,
                         child: TextButton(
                           onPressed: () {
-                            Get.toNamed('/signup');
+                            Get.offAllNamed('/signup');
                           },
                           child: RichText(
                             text: TextSpan(
