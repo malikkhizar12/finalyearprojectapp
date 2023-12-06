@@ -295,7 +295,7 @@ class FirebaseAuthController extends GetxController {
     await signInWithEmailAndPassword(
             loginEmailController.text, loginPasswordController.text)
         .then((User? user) async {
-      print(user);
+
       if (user != null) {
         await performSignUpTask(user);
       } else {

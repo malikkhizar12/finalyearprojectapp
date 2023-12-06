@@ -227,7 +227,7 @@ class _DashboardState extends State<Dashboard> {
                 children: [
                   const SizedBox(height: 35),
                   Text(
-                    "Course Guide By Asif".toUpperCase(),
+                    "Course Guide ".toUpperCase(),
                     style: const TextStyle(
                       fontSize: 29,
                       color: Colors.redAccent,
@@ -740,6 +740,83 @@ class _DashboardState extends State<Dashboard> {
                       ),
                     ),
                   ),
+                  // GridView.builder(
+                  //   shrinkWrap: true,
+                  //   physics: const NeverScrollableScrollPhysics(),
+                  //   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  //     crossAxisCount: 2,
+                  //     mainAxisSpacing: 20,
+                  //     crossAxisSpacing: 20,
+                  //   ),
+                  //   itemCount: suggestedCourses.length,
+                  //   itemBuilder: (context, index) {
+                  //     final courseData = suggestedCourses[index];
+                  //     String courseTitle = courseData['courseTitle']?.toString() ?? "Course Title";
+                  //     String courseSummary = courseData['courseSummary']?.toString() ?? "Course Summary";
+                  //     String courseURL = courseData['courseURL']?.toString() ?? "Course URL";
+                  //     String courseCost = courseData['courseCost']?.toString() ?? "Course Cost";
+                  //     String courseDuration = courseData['courseDuration']?.toString() ?? "Course Duration";
+                  //     String coursePlatform = courseData['coursePlatform']?.toString() ?? "Course Platform";
+                  //     print(courseTitle);
+                  //
+                  //     return GestureDetector(
+                  //       onTap: () {
+                  //         print("title from suggested");
+                  //         print(courseTitle);
+                  //         print("course from suggested");
+                  //         print(courseURL);
+                  //         Get.toNamed(
+                  //           '/CourseDetailsPage',
+                  //           arguments: {
+                  //             'courseTitle': courseTitle,
+                  //             'courseSummary': courseSummary,
+                  //             'courseDuration': courseDuration,
+                  //             'courseURL': courseURL,
+                  //             'coursePlatform': coursePlatform,
+                  //             'isSavedCourse': false, // This is not a saved course
+                  //           },
+                  //         );
+                  //       },
+                  //       child: Container(
+                  //         padding: const EdgeInsets.all(15),
+                  //         decoration: BoxDecoration(
+                  //           color: Colors.lightBlueAccent.withOpacity(0.3),
+                  //           borderRadius: BorderRadius.circular(15),
+                  //           boxShadow: [
+                  //             BoxShadow(
+                  //               color: Colors.grey.withOpacity(0.3),
+                  //               spreadRadius: 2,
+                  //               blurRadius: 5,
+                  //               offset: const Offset(0, 3),
+                  //             ),
+                  //           ],
+                  //         ),
+                  //         child: Column(
+                  //           crossAxisAlignment: CrossAxisAlignment.start,
+                  //           children: [
+                  //             Text(
+                  //               limitTitle(courseTitle, 2), // Limit to 2 words
+                  //               style: const TextStyle(
+                  //                 fontWeight: FontWeight.bold,
+                  //                 fontSize: 18,
+                  //                 color: Color(0xFF37474F),
+                  //               ),
+                  //             ),
+                  //             const SizedBox(height: 10),
+                  //             Text(
+                  //               courseSummary,
+                  //               maxLines: 3,
+                  //               overflow: TextOverflow.ellipsis,
+                  //               style: const TextStyle(
+                  //                 color: Color(0xFF607D8B),
+                  //               ),
+                  //             ),
+                  //           ],
+                  //         ),
+                  //       ),
+                  //     );
+                  //   },
+                  // ),
                 ],
               ),
             ),

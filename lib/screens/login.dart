@@ -8,39 +8,77 @@ import '../controllers/firebase_auth_controller.dart';
 import 'Ratings.dart';
 
 
-Future<void> sendSearchWordsToBackend(List<String> searchWords) async {
-  const apiUrl = 'http://192.168.73.159:5000/suggestions'; // Replace with your actual API endpoint
 
-  try {
-    // Make a POST request to the API with search words in the request body
-    final response = await http.post(
-      Uri.parse(apiUrl),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({'search_words': searchWords}),
-    );
 
-    if (response.statusCode == 200) {
-      // Successfully received recommendations, you can handle the response here
-      print('API Response: ${response.body}');
-    } else {
-      // Handle API errors here
-      print('API Error: ${response.statusCode}, ${response.body}');
-    }
-  } catch (e) {
-    // Handle network or other errors here
-    print('Error sending search words: $e');
-  }
+class Login extends StatefulWidget {
+  const Login({Key? key}) : super(key: key);
+
+  @override
+  _LoginState createState() => _LoginState();
 }
 
-
-class Login extends StatelessWidget {
-  Login({Key? key}) : super(key: key);
+class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
+    List<String> recommendedCourseTitles = [];
+    List<String> recommendedCourseSummary = [];
+    List<String> recommendedCourseCost = [];
+    List<String> recommendedCourseDuration = [];
+    List<String> recommendedCourseURL = [];
+    List<String> recommendedCoursePlatform = [];
     final controller = Get.find<FirebaseAuthController>();
     final RatingsPage ratingsPage = RatingsPage();
+
     final size = MediaQuery.of(context).size;
+    List<Map<String, dynamic>> suggestedCourses = [];
+    Future<void> sendSearchWordsToBackend(List<String> searchWords) async {
+      final apiUrl = 'http://192.168.18.85:5000/suggestions';
+      // Replace with your actual API endpoint
+
+      try {
+        // Make a POST request to the API with search words in the request body
+        final response = await http.post(
+          Uri.parse(apiUrl),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode({'search_words': searchWords}),
+        );
+
+        if (response.statusCode == 200) {
+          List<Map<String, dynamic>> courses = List<Map<String, dynamic>>.from(
+            json.decode(response.body).map((x) => Map<String, dynamic>.from(x)),
+          );
+
+          // Save courses to the recommendedCourseTitles, recommendedCourseSummary, etc.
+          setState(() {
+            recommendedCourseTitles = courses
+                .map((course) => course['Course Name'].toString())
+                .toList();
+            recommendedCourseSummary = courses
+                .map((course) => course['Course Description'].toString())
+                .toList();
+            recommendedCourseDuration = courses
+                .map((course) => course['course_duration'].toString())
+                .toList();
+            recommendedCourseURL =
+                courses.map((course) => course['Course URL'].toString()).toList();
+            recommendedCoursePlatform =
+                courses.map((course) => course['University'].toString()).toList();
+          });
+
+          suggestedCourses = courses;
+
+          print('API Response/list: $suggestedCourses');
+        }
+        else {
+          // Handle API errors here
+          print('API Error: ${response.statusCode}, ${response.body}');
+        }
+      } catch (e) {
+        // Handle network or other errors here
+        print('Error sending search words: $e');
+      }
+    }
     return SafeArea(
       child: Scaffold(
         backgroundColor: const Color(0xffFBF3EF),
@@ -93,16 +131,11 @@ class Login extends StatelessWidget {
                       ),
                       ElevatedButton(
                         onPressed: () async {
+                          List<String> searchWords = await controller.fetchSavedSearchWords();
+                          await sendSearchWordsToBackend(searchWords);
                           // Perform sign-in
                           await controller.signInWithEmailPassword(context);
 
-                          // Fetch saved search words
-                          List<String> searchWords = await controller.fetchSavedSearchWords();
-
-                          // Send search words to the backend API
-                          await sendSearchWordsToBackend(searchWords);
-
-                          // ratingsPage.checkLoginCountAndRatingsStatus();
                         },
                         child: Text(
                           "Login".toUpperCase(),
