@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:course_guide/controllers/setting_drawer_controller.dart';
@@ -971,14 +970,10 @@ class _DashboardState extends State<Dashboard> {
                           onTap: () async {
                             final email = 'malikkhizarhayyat78@gmail.com';
                             final subject = 'CourseGuide Customer Service';
+                            final mailtoLink = Uri.parse('mailto:$email?subject=$subject');
 
-                            final mailtoLink = Mailto(
-                              to: [email],
-                              subject: subject,
-                            );
-
-                            if (await canLaunch(mailtoLink.toString())) {
-                              await launch(mailtoLink.toString());
+                            if (await canLaunchUrl(mailtoLink)) {
+                              await launchUrl(mailtoLink);
                             } else {
                               print('Could not launch email');
                             }

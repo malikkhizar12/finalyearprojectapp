@@ -10,10 +10,10 @@ class SplashController extends GetxController
   @override
   void onInit() async
   {
-    super.onInit();
+    String uid = firebaseUserId();
+    print(uid);
     await Future.delayed(const Duration(seconds: 6), () async
     {
-      String uid = firebaseUserId();
       if (uid.isNotEmpty)
       {
         await controller.sendSearchWordsToBackend();
@@ -25,6 +25,7 @@ class SplashController extends GetxController
       }
     }
     );
+    super.onInit();
   }
 
   @override
