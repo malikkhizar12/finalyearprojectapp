@@ -9,6 +9,7 @@ import '../screens/feedback.dart';
 import '../screens/login.dart';
 import '../screens/signup.dart';
 import '../screens/splashScreen.dart';
+import '../screens/suggestedCourses.dart';
 import 'binding.dart';
 
 class Pages {
@@ -22,6 +23,7 @@ class Pages {
     GetPage(name: '/preferences', page: () =>  PreferencesPage(), binding: PreferencesBinding()),
     GetPage(name: '/ForgotPassword', page: () =>  ForgotPassword(),fullscreenDialog: true),
     GetPage(name: '/CourseDetailsPage', page: () =>  CourseDetailPage(),fullscreenDialog: true),
+    GetPage(name: '/suggestedCourses', page: () =>  SuggestedCourses(),fullscreenDialog: true),
     GetPage(name: '/FeedBackPage', page: () =>  FeedbackPage(),fullscreenDialog: true),
 
 

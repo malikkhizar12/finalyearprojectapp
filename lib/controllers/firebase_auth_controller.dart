@@ -1,5 +1,6 @@
 import 'dart:async';
-
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -42,6 +43,8 @@ class FirebaseAuthController extends GetxController {
   Rx<bool> hidePassword = true.obs;
   Rx<bool> hideRepeatPassword = true.obs;
   final box = GetStorage();
+  RxList recommendedCourses = [].obs;
+
 
 
   saveEmailPassword({required bool rememberMe}) {
@@ -65,7 +68,7 @@ class FirebaseAuthController extends GetxController {
       }
     });
   }
-  Future<void> storeFeedback(String feedbackText1, String feedbackText2, String feedbackText3) async {
+  Future<void> storeFeedback(String feedbackText1) async {
     try {
       final user = _auth.currentUser;
 
@@ -83,9 +86,7 @@ class FirebaseAuthController extends GetxController {
       // Create a data map with the feedback and other relevant information
       final feedbackData = {
         'userId': user.uid,
-        'feedbackText1': feedbackText1,
-        'feedbackText2': feedbackText2,
-        'feedbackText3': feedbackText3,
+        'feedbackText': feedbackText1,
         'timestamp': FieldValue.serverTimestamp(),
       };
 
@@ -120,12 +121,13 @@ class FirebaseAuthController extends GetxController {
       return [];
     }
   }
-  Future<void> saveCourse(String courseTitle, String courseSummary,String coursePlatform, String courseDuration, String courseURL) async {
+  Future<void> saveCourse(String courseTitle, String courseSummary,String coursePlatform, String courseURL) async {
+    startLoading();
     try {
       final user = _auth.currentUser;
 
       if (user == null) {
-        print('User not logged in');
+        stopLoading();
         showToast('Error', 'You need to be logged in to save a course', err: true);
         return;
       }
@@ -133,6 +135,7 @@ class FirebaseAuthController extends GetxController {
       // Check if the course URL already exists in the saved courses list
       final savedCourses = await getSavedCourses();
       if (savedCourses.contains(courseURL)) {
+        stopLoading();
         // Course already saved
         showToast('Info', 'Course already saved');
         return;
@@ -145,19 +148,20 @@ class FirebaseAuthController extends GetxController {
         'courseTitle': courseTitle,
         'courseSummary': courseSummary,
         'coursePlatform': coursePlatform,
-        'courseDuration': courseDuration,
+
         'courseURL': courseURL,
         'timestamp': FieldValue.serverTimestamp(),
       });
-
-
+      stopLoading();
       showToast('Success', 'Course saved successfully');
     } catch (e) {
+      stopLoading();
       print('Error saving course: $e');
       showToast('Error', 'Failed to save course', err: true);
     }
   }
   Future<void> deleteCourse(String courseTitle) async {
+    startLoading();
     try {
       final user = _auth.currentUser;
 
@@ -179,7 +183,7 @@ class FirebaseAuthController extends GetxController {
       if (docToDelete != null) {
         // Update the document to mark the course as deleted
         await docToDelete.reference.delete();
-        print('Course marked as deleted in Firestore');
+        stopLoading();
         showToast('Success', 'Course removed from your dashboard');
       } else {
         // Course not found
@@ -262,7 +266,7 @@ class FirebaseAuthController extends GetxController {
         List<String> searchWords = snapshot.docs.map((doc) => doc['word'] as String).toList();
 
         // Optionally, you can print the search words
-        print("Saved Search Words: $searchWords");
+
 
         return searchWords;
       } catch (e) {
@@ -337,6 +341,7 @@ class FirebaseAuthController extends GetxController {
     // Sign out the current user based on their authentication provider
     var cUser = _auth.currentUser!;
     if (_auth.currentUser != null) {
+      recommendedCourses.value.clear();
       if (_auth.currentUser!.isAnonymous) {
         // Anonymous user
         await _auth.currentUser!.delete();
@@ -361,6 +366,37 @@ class FirebaseAuthController extends GetxController {
       }
     }
   }
+  Future<void> sendSearchWordsToBackend() async {
+    final apiUrl = 'http://192.168.18.85:5000/suggestions';
+    List<String> searchWords = await fetchSavedSearchWords();
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'search_words': searchWords}),
+      );
+
+      if (response.statusCode == 200) {
+        List<Map<String, dynamic>> courses = List<Map<String, dynamic>>.from(
+          json.decode(response.body).map((x) => Map<String, dynamic>.from(x)),
+        );
+
+        // Update Rx variables
+        recommendedCourses.addAll(courses);
+        // Print all lists with their names
+
+
+      } else {
+        // Handle API errors here
+        print('API Error: ${response.statusCode}, ${response.body}');
+      }
+    } catch (e) {
+      // Handle network or other errors here
+      print('Error sending search words: $e');
+    }
+  }
+
 
   Future<void> performSignUpTask(User user) async {
     String uid = user.uid;
@@ -369,7 +405,6 @@ class FirebaseAuthController extends GetxController {
       DocumentSnapshot<Object?> data = await usersCollection.doc(uid).get();
       var profilePhoto = await profilePhotoCollection.doc('profilePhoto').get();
       photoUrl = photoUrl.isEmpty ? profilePhoto['photoUrl'] : photoUrl;
-      print('photoUrl : $photoUrl');
       if (!data.exists) {
         await usersCollection.doc(uid).set({
           'uid': uid,
@@ -379,13 +414,14 @@ class FirebaseAuthController extends GetxController {
           'createdAt': FieldValue.serverTimestamp(),
           'displayName': user.displayName == '' || user.displayName == null ? nameController.text : user.displayName,
           'photoUrl': photoUrl,
-        }).then((value) {
+        }).then((value) async {
           clearController();
-
+          await sendSearchWordsToBackend();
           showToast('Welcome', 'Your account has been created');
           Get.offAndToNamed('/dashBoard');
         });
       } else {
+        await sendSearchWordsToBackend();
         clearController();
         showToast('Welcome', 'Logged in Successfully');
 

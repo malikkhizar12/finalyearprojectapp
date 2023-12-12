@@ -3,9 +3,7 @@ import 'package:get/get.dart';
 import '../controllers/firebase_auth_controller.dart';
 
 class FeedbackPage extends StatelessWidget {
-  final TextEditingController feedbackController1 = TextEditingController();
-  final TextEditingController feedbackController2 = TextEditingController();
-  final TextEditingController feedbackController3 = TextEditingController();
+  final TextEditingController feedbackController = TextEditingController();
 
   FeedbackPage({super.key});
 
@@ -13,82 +11,55 @@ class FeedbackPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<FirebaseAuthController>();
     return Scaffold(
+      backgroundColor:const Color(0xffFBF3EF),
       extendBodyBehindAppBar: true,
       appBar: null,
-      body: Center(
-
-        child: SingleChildScrollView(
-
-          child: Padding(
-
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Column(
-
-
-              children: [
-
-                Container(
-                  alignment: Alignment.center,
-                  child: Text(
-                    "Course Guide ".toUpperCase(),
-                    style: const TextStyle(
-                      fontSize: 35,
-                      color: Colors.redAccent,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            children: [
+              SizedBox(height: 60),
+              Container(
+                alignment: Alignment.center,
+                child: Image(
+                  image: const AssetImage("assets/images/welcomelogo.png"),
                 ),
-                const SizedBox(height: 35),
-
-                   const Text(
-                    'Feedback',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                const SizedBox(height: 20),
-                FeedbackTextField(
-                  controller: feedbackController1,
-                  label: '1. Is the app easier to use?',
-                ),
-                FeedbackTextField(
-                  controller: feedbackController2,
-                  label: '2. How helpful was our app in finding your required courses?',
-                ),
-                FeedbackTextField(
-                  controller: feedbackController3,
-                  label: '3. What improvements can be made in the app?',
-                ),
-                SizedBox(height: 20),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                primary: Colors.red.withOpacity(0.7),
-                minimumSize: Size(double.infinity, 50), // Make the button wide
               ),
-              onPressed: () {
-                final feedbackText1 = feedbackController1.text;
-                final feedbackText2 = feedbackController2.text;
-                final feedbackText3 = feedbackController3.text;
+              SizedBox(height: 10,),
 
-                if (feedbackText1.isNotEmpty && feedbackText2.isNotEmpty && feedbackText3.isNotEmpty) {
-                  controller.storeFeedback(feedbackText1, feedbackText2, feedbackText3);
-                } else {
-                  showEmptyFeedbackPopup(context);
-                }
-              },
-              child: const Text('Submit Feedback', style: TextStyle(fontSize: 18)),
-            ),
 
-              ],
-            ),
+              const SizedBox(height: 20),
+              FeedbackTextField(
+                controller: feedbackController,
+                label: 'Write Feedback',
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.red.withOpacity(0.7),
+                  minimumSize: Size(double.infinity, 50),
+                ),
+                onPressed: () {
+                  final feedbackText = feedbackController.text;
+
+                  if (feedbackText.isNotEmpty) {
+                    controller.storeFeedback(feedbackText);
+                  } else {
+                    showEmptyFeedbackPopup(context);
+                  }
+                },
+                child: const Text('Submit Feedback', style: TextStyle(fontSize: 16,color: Colors.white,fontWeight: FontWeight.bold)),
+              ),
+
+            ],
           ),
         ),
       ),
     );
   }
 }
+
 // Function to show a styled popup for empty feedback
 void showEmptyFeedbackPopup(BuildContext context) {
   showDialog(
@@ -98,20 +69,20 @@ void showEmptyFeedbackPopup(BuildContext context) {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
         ),
-        backgroundColor: Colors.redAccent.withOpacity(0.8), // Change the background color to your preferred color
+        backgroundColor: Colors.redAccent.withOpacity(0.8),
         title: Text(
           'Empty Feedback',
           style: TextStyle(
-            color: Colors.white, // Text color
-            fontSize: 20.0, // Text size
-            fontWeight: FontWeight.bold, // Text weight
+            color: Colors.white,
+            fontSize: 20.0,
+            fontWeight: FontWeight.bold,
           ),
         ),
         content: Text(
-          'Please provide input for all feedback fields.',
+          'Please provide your feedback.',
           style: TextStyle(
-            color: Colors.white, // Text color
-            fontSize: 16.0, // Text size
+            color: Colors.white,
+            fontSize: 16.0,
           ),
         ),
         actions: <Widget>[
@@ -122,8 +93,8 @@ void showEmptyFeedbackPopup(BuildContext context) {
             child: Text(
               'OK',
               style: TextStyle(
-                color: Colors.white, // Text color
-                fontSize: 18.0, // Text size
+                color: Colors.white,
+                fontSize: 18.0,
               ),
             ),
           ),
@@ -155,14 +126,17 @@ class FeedbackTextField extends StatelessWidget {
           fillColor: Colors.grey[200],
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.red, width: 2),
+            borderRadius: BorderRadius.circular(15),
           ),
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(color: Colors.grey, width: 1),
+            borderRadius: BorderRadius.circular(15),
           ),
-          contentPadding: const EdgeInsets.all(10),
+          contentPadding: const EdgeInsets.only(top: 20, bottom: 20, left: 10),
           isDense: true,
+          alignLabelWithHint: true,
         ),
-        maxLines: 3,
+        maxLines: 15,
       ),
     );
   }

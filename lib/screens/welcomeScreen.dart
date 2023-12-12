@@ -11,131 +11,132 @@ class WelcomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<FirebaseAuthController>();
     return Scaffold(
-      backgroundColor: const Color(0xffFBF3EF),
+      backgroundColor:const Color(0xffFBF3EF),
       extendBodyBehindAppBar: true,
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Image(image: AssetImage("assets/images/welcomelogo.png")),
-           /* Text(
-              "Course Guide",
-              style: TextStyle(
-                fontSize: 32.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),*/
-            const SizedBox(height: 0.0),
-            const Text(
-              "Find the Best Suitable Course for you, Find courses on a single search",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 18.0,
-              ),
-            ),
-            const SizedBox(height: 99.0),
-
-            SizedBox(
-              width: double.infinity,
-              height: 45,
-              child: OutlinedButton.icon(
-                icon: const Image(image: AssetImage('assets/images/google_icon.png'), width: 24,),
-                label: const Text("Continue with Google",
-                  style: TextStyle(
-                      color: Colors.black,
-                    fontSize: 15
-                  ),) ,
-                onPressed: () async => await controller.authenticateWithGoogle(context),
-                style: OutlinedButton.styleFrom(
-                  shape: const RoundedRectangleBorder(),
-                    side: const BorderSide(width: 0.4,color: Colors.black)
-                ),
-              ),
-            ),
-            const SizedBox(height: 15,),
-            SizedBox(
-              width: double.infinity,
-              height: 45,
-              child: OutlinedButton.icon(
-                icon: const Image(image: AssetImage('assets/images/facebook_icon.png'), width: 30,),
-                label: const Text("Continue with Facebook",
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 15
-                  ),) ,
-                onPressed: (){},
-                style: OutlinedButton.styleFrom(
-                    shape: const RoundedRectangleBorder(),
-                    side: const BorderSide(width: 0.4,color: Colors.black)
-                ),
-              ),
-            ),
-
-
-            const SizedBox(height: 20),
-                    const Text("OR"),
-            const SizedBox(height: 20),
-                   Container(
-                     width: double.infinity,
-                     height: 45,
-                     child: ElevatedButton(
-                      onPressed: () {
-                        Get.offAllNamed('/login');
-                      },
-                      child: Text("Login with Email".toUpperCase()),
-
-                      style: ElevatedButton.styleFrom(
-
-                        shape: const RoundedRectangleBorder(),
-                        backgroundColor: Colors.red.withOpacity(0.7),
-                        foregroundColor: Colors.white,
-
+      body: Column(
+        children: [
+          // Upper Container with Images
+          ClipPath(
+            clipper: UpperContainerClipper(),
+            child: Container(
+              height: MediaQuery.of(context).size.height * 0.35,
+              color:Colors.blueAccent.withOpacity(0.4), // Set the color you desire
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Image(image: AssetImage("assets/images/welcomelogo.png")),
+                    const Text(
+                      "Find the Best Suitable Course for you, Find courses on a single search",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18.0,
                       ),
-
-                  ),
-                   ),
-            Center(
-              child: TextButton(
-                onPressed: () {
-                  Get.offAllNamed('/signup');
-                },
-                child: Text(
-                  "dont't have an account? Sign up",
-                  style: TextStyle(
-                    color: Colors.redAccent.withOpacity(0.6),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          // Lower Container with Buttons
+          Container(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              children: [
+                const Image(image: AssetImage("assets/images/welcome_screen_image.png"), height: 300, width: 300),
+                SizedBox(height: 30,),
+                const SizedBox(height: 20),
+                Container(
+                  width: double.infinity,
+                  height: 45,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Get.offAllNamed('/signup');
+                    },
+                    child: Text("SignUp".toUpperCase()),
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(22.0), // Adjust the radius as needed
+                      ),
+                      backgroundColor: Colors.red.withOpacity(0.7),
+                      foregroundColor: Colors.white,
+                    ),
                   ),
                 ),
-              ),
-            ),
-                const SizedBox(height: 60,),
-                const Text("By creating an account, You accept CourseGuide's",
-                style: TextStyle(fontSize: 12),),
-
-               Center(
-                 child: TextButton(onPressed:(){
-
-                  },
-                      child: Text("Terms of Services and Policies",
-                 style: TextStyle(
-                   fontWeight: FontWeight.bold,
-                     color: Colors.black.withOpacity(0.6),
-                     height: -0.5,
-                 )
+                const SizedBox(height: 20),
+                Container(
+                  width: double.infinity,
+                  height: 45,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Get.offAllNamed('/login');
+                    },
+                    child: Text("Login with Email".toUpperCase()),
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(22.0), // Adjust the radius as needed
                       ),
-                 ),
-               )
+                      backgroundColor: Colors.red.withOpacity(0.7),
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  height: 45,
+                  child: OutlinedButton.icon(
+                    icon: const Image(
+                      image: AssetImage('assets/images/google_icon.png'),
+                      width: 24,
+                    ),
+                    label: const Text(
+                      "Continue with Google",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 15,
+                      ),
+                    ),
+                    onPressed: () async => await controller.authenticateWithGoogle(context),
+                    style: OutlinedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(22.0), // Adjust the radius as needed
+                      ),
+                      side: BorderSide(width: 0.4, color: Colors.black),
+                    ),
+                  ),
+                ),
+
+                // ... other widgets ...
               ],
-
-
-        ),
+            ),
+          ),
+        ],
       ),
-
-
-
-
-
     );
 
+
+
+
+
+
+
+  }
+
+}
+class UpperContainerClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    path.lineTo(0, size.height - 50); // start from bottom-left
+    path.quadraticBezierTo(size.width / 2, size.height, size.width, size.height - 50); // upper curve
+    path.lineTo(size.width, 0); // end at top-right
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) {
+    return false;
   }
 }

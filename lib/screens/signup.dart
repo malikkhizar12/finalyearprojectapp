@@ -192,24 +192,16 @@ class SignupPage extends StatelessWidget {
                             width: double.infinity,
                             height: 45,
                             child: OutlinedButton.icon(
-                              icon: Image(
-                                image:
-                                AssetImage('assets/images/google_icon.png'),
-                                width: 20,
-                              ),
-                              label: Text(
-                                "Continue with Google",
-                                style: TextStyle(color: Colors.black),
-                              ),
-                              onPressed: () async {
-                                if(controller.selectedEducationStatus.isEmpty){
-                                  showToast('Please Select Education status', 'Education Status ca\'t be empty');
-                                  return;
-                                }
-                                await controller.authenticateWithGoogle(context);
-                              },
+                              icon: const Image(image: AssetImage('assets/images/google_icon.png'), width: 24,),
+                              label: const Text("Continue with Google",
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 15
+                                ),) ,
+                              onPressed: () async => await controller.authenticateWithGoogle(context),
                               style: OutlinedButton.styleFrom(
-                                shape: RoundedRectangleBorder(),
+                                  shape: const RoundedRectangleBorder(),
+                                  side: const BorderSide(width: 0.4,color: Colors.black)
                               ),
                             ),
                           ),

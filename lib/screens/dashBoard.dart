@@ -7,6 +7,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:mailto/mailto.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../controllers/drawer_controller.dart';
 import '../controllers/firebase_auth_controller.dart';
@@ -76,9 +78,11 @@ class _DashboardState extends State<Dashboard> {
   // Initial state
   PageState _currentPageState = PageState.State2;
   void fetchRecommendedCourses() async {
+
     setState(() {
       isFetchingRecommendations = true;
     });
+
     void showNoCoursesDialog(BuildContext context) {
       showDialog(
         context: context,
@@ -101,8 +105,8 @@ class _DashboardState extends State<Dashboard> {
     }
 
     // const apiUrl = 'https://courseguide.cyclic.cloud/recommend';
-    // const apiUrl = 'http://127.0.0.1:5000/recommend';
-    const apiUrl = 'http://192.168.73.159:5000/recommend';
+    const apiUrl = 'http://192.168.18.85:5000/recommend';
+    // const apiUrl = 'http://192.168.73.159:5000/recommend';
     final response = await http.post(
       Uri.parse(apiUrl),
       headers: {'Content-Type': 'application/json'},
@@ -398,6 +402,7 @@ class _DashboardState extends State<Dashboard> {
 
                                   return GestureDetector(
                                     onTap: () {
+                                      print(recommendedCourseURL);
                                       Get.toNamed(
                                         '/CourseDetailsPage',
                                         arguments: {
@@ -413,6 +418,7 @@ class _DashboardState extends State<Dashboard> {
                                               recommendedCoursePlatform[index],
                                           'isSavedCourse': false,
                                         },
+
                                       );
                                     },
                                     child: Container(
@@ -740,83 +746,82 @@ class _DashboardState extends State<Dashboard> {
                       ),
                     ),
                   ),
-                  // GridView.builder(
-                  //   shrinkWrap: true,
-                  //   physics: const NeverScrollableScrollPhysics(),
-                  //   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  //     crossAxisCount: 2,
-                  //     mainAxisSpacing: 20,
-                  //     crossAxisSpacing: 20,
-                  //   ),
-                  //   itemCount: suggestedCourses.length,
-                  //   itemBuilder: (context, index) {
-                  //     final courseData = suggestedCourses[index];
-                  //     String courseTitle = courseData['courseTitle']?.toString() ?? "Course Title";
-                  //     String courseSummary = courseData['courseSummary']?.toString() ?? "Course Summary";
-                  //     String courseURL = courseData['courseURL']?.toString() ?? "Course URL";
-                  //     String courseCost = courseData['courseCost']?.toString() ?? "Course Cost";
-                  //     String courseDuration = courseData['courseDuration']?.toString() ?? "Course Duration";
-                  //     String coursePlatform = courseData['coursePlatform']?.toString() ?? "Course Platform";
-                  //     print(courseTitle);
-                  //
-                  //     return GestureDetector(
-                  //       onTap: () {
-                  //         print("title from suggested");
-                  //         print(courseTitle);
-                  //         print("course from suggested");
-                  //         print(courseURL);
-                  //         Get.toNamed(
-                  //           '/CourseDetailsPage',
-                  //           arguments: {
-                  //             'courseTitle': courseTitle,
-                  //             'courseSummary': courseSummary,
-                  //             'courseDuration': courseDuration,
-                  //             'courseURL': courseURL,
-                  //             'coursePlatform': coursePlatform,
-                  //             'isSavedCourse': false, // This is not a saved course
-                  //           },
-                  //         );
-                  //       },
-                  //       child: Container(
-                  //         padding: const EdgeInsets.all(15),
-                  //         decoration: BoxDecoration(
-                  //           color: Colors.lightBlueAccent.withOpacity(0.3),
-                  //           borderRadius: BorderRadius.circular(15),
-                  //           boxShadow: [
-                  //             BoxShadow(
-                  //               color: Colors.grey.withOpacity(0.3),
-                  //               spreadRadius: 2,
-                  //               blurRadius: 5,
-                  //               offset: const Offset(0, 3),
-                  //             ),
-                  //           ],
-                  //         ),
-                  //         child: Column(
-                  //           crossAxisAlignment: CrossAxisAlignment.start,
-                  //           children: [
-                  //             Text(
-                  //               limitTitle(courseTitle, 2), // Limit to 2 words
-                  //               style: const TextStyle(
-                  //                 fontWeight: FontWeight.bold,
-                  //                 fontSize: 18,
-                  //                 color: Color(0xFF37474F),
-                  //               ),
-                  //             ),
-                  //             const SizedBox(height: 10),
-                  //             Text(
-                  //               courseSummary,
-                  //               maxLines: 3,
-                  //               overflow: TextOverflow.ellipsis,
-                  //               style: const TextStyle(
-                  //                 color: Color(0xFF607D8B),
-                  //               ),
-                  //             ),
-                  //           ],
-                  //         ),
-                  //       ),
-                  //     );
-                  //   },
-                  // ),
+                  // ElevatedButton(onPressed: (){print("SUGGESTED COURSES ,$recommendedCourses");},
+                  //     child:Text("Print Courses")),
+
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 20,
+                      crossAxisSpacing: 20,
+                    ),
+                    itemCount: controller.recommendedCourses.value.length,
+                    itemBuilder: (context, index) {
+                      final courseData = controller.recommendedCourses.value[index];
+                      String courseTitle = courseData['Course Name']?.toString() ?? "Course Title";
+                      String courseSummary = courseData['Course Description']?.toString() ?? "Course Summary";
+                      String courseURL = courseData['Course URL']?.toString() ?? "Course URL";
+                      String coursePlatform = courseData['University']?.toString() ?? "Course Platform";
+
+                      // Add some debugging prints
+
+
+                      return GestureDetector(
+                        onTap: () {
+                          Get.toNamed(
+                            '/suggestedCourses',
+                            arguments: {
+                              'courseTitle': courseTitle,
+                              'courseSummary': courseSummary,
+                              'courseURL': courseURL,
+                              'coursePlatform': coursePlatform,
+                              'isSavedCourse': false,
+                            },
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(15),
+                          decoration: BoxDecoration(
+                            color: Colors.lightBlueAccent.withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(15),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.3),
+                                spreadRadius: 2,
+                                blurRadius: 5,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                limitTitle(courseTitle, 2),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: Color(0xFF37474F),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                courseSummary,
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: Color(0xFF607D8B),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+
                 ],
               ),
             ),
@@ -952,7 +957,7 @@ class _DashboardState extends State<Dashboard> {
                                       .feedback), // Replace with your desired icon
                                   onPressed: () {
                                     // Handle icon click, e.g., open a feedback dialog
-                                    print('Icon clicked');
+
                                   },
                                 ),
                               ],
@@ -964,17 +969,17 @@ class _DashboardState extends State<Dashboard> {
                         ),
                         GestureDetector(
                           onTap: () async {
-                            // Construct the email launch URL
-                            final Uri emailLaunchUri = Uri(
-                              scheme: 'mailto',
-                              path: 'malikkhizarhayyat78@gmail.com',
-                              query: 'subject=CourseGuide%20Customer%20Service',
+                            final email = 'malikkhizarhayyat78@gmail.com';
+                            final subject = 'CourseGuide Customer Service';
+
+                            final mailtoLink = Mailto(
+                              to: [email],
+                              subject: subject,
                             );
-                            if (await canLaunch(emailLaunchUri.toString())) {
-                              // Launch the email app
-                              await launch(emailLaunchUri.toString());
+
+                            if (await canLaunch(mailtoLink.toString())) {
+                              await launch(mailtoLink.toString());
                             } else {
-                              // Handle error if the URL can't be launched
                               print('Could not launch email');
                             }
                           },
@@ -989,8 +994,7 @@ class _DashboardState extends State<Dashboard> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 16.0),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                                   child: Text(
                                     'Contact Us',
                                     style: TextStyle(
@@ -1009,9 +1013,13 @@ class _DashboardState extends State<Dashboard> {
                             ),
                           ),
                         ),
+
+
+
                         SizedBox(
                           height: 29,
-                        ),
+                        )
+                        ,
                         Container(
                           height: screenHeight * 0.1,
                           width: screenWidth * 0.9,
@@ -1033,7 +1041,7 @@ class _DashboardState extends State<Dashboard> {
                             onPressed: () async {
                               final controller = Get.find<FirebaseAuthController>();
                               await controller.signOut();
-                              Get.offAllNamed('/login');
+                              Get.offAllNamed('/');
                             },
                             child: Text(
                               "Logout".toUpperCase(),
