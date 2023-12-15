@@ -9,6 +9,8 @@ class WelcomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double screenHeight = MediaQuery.of(context).size.height;
+    double screenWidth = MediaQuery.of(context).size.width;
     final controller = Get.find<FirebaseAuthController>();
     return Scaffold(
       backgroundColor:const Color(0xffFBF3EF),
@@ -44,8 +46,10 @@ class WelcomeScreen extends StatelessWidget {
             padding: const EdgeInsets.all(24.0),
             child: Column(
               children: [
-                const Image(image: AssetImage("assets/images/welcome_screen_image.png"), height: 300, width: 300),
-                SizedBox(height: 30,),
+                 Image(image: AssetImage("assets/images/welcome_screen_image.png"),
+                    // Adjust the factor as needed
+                  width: screenWidth * 0.55),
+                SizedBox(height: 10,),
                 const SizedBox(height: 20),
                 Container(
                   width: double.infinity,

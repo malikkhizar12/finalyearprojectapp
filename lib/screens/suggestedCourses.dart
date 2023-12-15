@@ -12,7 +12,6 @@ class SuggestedCourses extends StatelessWidget {
     if (arguments != null) {
       final courseTitle = arguments['courseTitle'];
       final courseSummary = arguments['courseSummary'];
-
       final courseURL = arguments['courseURL'];
       final coursePlatform = arguments['coursePlatform'];
       final firebaseAuthController = Get.put(FirebaseAuthController());
