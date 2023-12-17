@@ -104,7 +104,7 @@ class _DashboardState extends State<Dashboard> {
     }
 
     // const apiUrl = 'https://courseguide.cyclic.cloud/recommend';
-    const apiUrl = 'http://192.168.18.85:5000/recommend';
+    const apiUrl = 'http://192.168.139.159:5050/recommend';
     // const apiUrl = 'http://192.168.73.159:5000/recommend';
     final response = await http.post(
       Uri.parse(apiUrl),

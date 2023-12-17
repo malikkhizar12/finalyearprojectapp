@@ -27,7 +27,7 @@ class _LoginState extends State<Login> {
     List<Map<String, dynamic>> suggestedCourses = [];
 
     Future<void> sendSearchWordsToBackend(List<String> searchWords) async {
-      final apiUrl = 'http://192.168.18.85:5000/suggestions';
+      final apiUrl = 'http://192.168.139.159:5050/suggestions';
 
       try {
         final response = await http.post(
