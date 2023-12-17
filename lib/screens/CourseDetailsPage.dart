@@ -12,10 +12,11 @@
       if (arguments != null) {
         final courseTitle = arguments['courseTitle'];
         final courseSummary = arguments['courseSummary'];
-
-        final courseDuration = arguments['courseDuration'];
         final courseURL = arguments['courseURL'];
         final coursePlatform = arguments['coursePlatform'];
+        final courseLevel = arguments['courseLevel'];
+        final courseRating = arguments['courseRating'];
+        final courseInstructor = arguments['courseInstructor'];
         final firebaseAuthController = Get.put(FirebaseAuthController());
         RxBool isSavingCourse = false.obs;
         bool isSavedCourse = Get.arguments?['isSavedCourse'] ?? false;
@@ -37,7 +38,7 @@
                   Center(
                     child: Text(
                       courseTitle.toUpperCase(),
-                      style: TextStyle(
+                      style:const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
                       ),
@@ -47,9 +48,9 @@
 
 
 
-                  SizedBox(height: 25),
+                  const SizedBox(height: 25),
 
-                  Text(
+                  const Text(
                     'Summary:',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
@@ -59,15 +60,15 @@
                   ),
                   Text(
                     courseSummary,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       color: Color(0xFF607D8B),
                     ),
                   ),
 
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
 
-                  Text(
+                  const Text(
                     'Platform',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
@@ -78,12 +79,65 @@
                   Text(
 
                     coursePlatform,
-                    style: TextStyle(
+                    style:const TextStyle(
                       fontSize: 16,
                       color: Color(0xFF607D8B),
                     ),
                   ),
+                  const SizedBox(height: 10),
 
+                  const Text(
+                    'Instructor/University',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: Color(0xFF37474F),
+                    ),
+                  ),
+                  Text(
+
+                    courseInstructor,
+                    style:const TextStyle(
+                      fontSize: 16,
+                      color: Color(0xFF607D8B),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  const Text(
+                    'Level',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: Color(0xFF37474F),
+                    ),
+                  ),
+                  Text(
+
+                    courseLevel,
+                    style:const TextStyle(
+                      fontSize: 16,
+                      color: Color(0xFF607D8B),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  const Text(
+                    'Ratings',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: Color(0xFF37474F),
+                    ),
+                  ),
+                  Text(
+
+                    courseRating,
+                    style:const TextStyle(
+                      fontSize: 16,
+                      color: Color(0xFF607D8B),
+                    ),
+                  ),
                   SizedBox(height: 30),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -94,7 +148,7 @@
                           height: 40,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              primary: Colors.black.withOpacity(0.6),
+                              backgroundColor: Colors.black.withOpacity(0.6),
                               shape: const RoundedRectangleBorder(),
                             ),
                             onPressed: () async {
@@ -105,7 +159,7 @@
                                 print('Could not launch $courseURL');
                               }
                             },
-                            child: Text(
+                            child: const Text(
                               'Enroll Course',
                               style: TextStyle(
                                 color: Colors.white,
@@ -117,7 +171,7 @@
                         ),
                       ),
 
-                      SizedBox(width: 16),
+                      const SizedBox(width: 16),
                       Expanded(
                         flex: 1,
                         child: Obx(() {
@@ -132,7 +186,6 @@
                                     // Delete the course from the dashboard (not Firebase)
                                     Get.back();
                                     await firebaseAuthController.deleteCourse(courseTitle);
-
                                   } else {
                                     // Save the course logic here
                                     await firebaseAuthController.saveCourse(
@@ -150,7 +203,7 @@
                                   textStyle: TextStyle(color: Colors.white),
                                 ),
 
-                                child: Text(isSavedCourse ? 'Delete Course' : 'Save Course',style: TextStyle(color: Colors.white,
+                                child: Text(isSavedCourse ? 'Delete Course' : 'Save Course',style:const TextStyle(color: Colors.white,
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,),),
                               ),
@@ -180,9 +233,9 @@
             ),
            Scaffold(
             appBar: AppBar(
-              title: Text('Course Details'),
+              title:const Text('Course Details'),
             ),
-            body: Center(
+            body: const Center(
               child: Text('Course details are missing.'),
             ),
           ),
