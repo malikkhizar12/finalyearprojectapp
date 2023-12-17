@@ -27,7 +27,12 @@ class _LoginState extends State<Login> {
     List<Map<String, dynamic>> suggestedCourses = [];
 
     Future<void> sendSearchWordsToBackend(List<String> searchWords) async {
+<<<<<<< HEAD
       final apiUrl = 'http://192.168.139.159:5050/suggestions';
+=======
+      final
+      apiUrl = 'http://192.168.18.85:5000/suggestions';
+>>>>>>> 5f66970acb1fed438615c6a6e896614a0adedee9
 
       try {
         final response = await http.post(
@@ -56,9 +61,7 @@ class _LoginState extends State<Login> {
             recommendedCoursePlatform =
                 courses.map((course) => course['University'].toString()).toList();
           });
-
           suggestedCourses = courses;
-
         } else {
           print('API Error: ${response.statusCode}, ${response.body}');
         }
@@ -66,7 +69,6 @@ class _LoginState extends State<Login> {
         print('Error sending search words: $e');
       }
     }
-
     return SafeArea(
       child: Scaffold(
         body:
@@ -125,7 +127,7 @@ class _LoginState extends State<Login> {
                               onPressed: () async {
                                 await controller.signInWithEmailPassword(context);
                               },
-                              child: Text(
+                              child:Text(
                                 "Login".toUpperCase(),
                                 style: TextStyle(
                                   color: Colors.white,

@@ -48,10 +48,12 @@ int numberOfCoursesToShow = 2;
 bool showAllCourses = false;
 List<String> recommendedCourseTitles = [];
 List<String> recommendedCourseSummary = [];
-List<String> recommendedCourseCost = [];
-List<String> recommendedCourseDuration = [];
+List<String> recommendedCourseLevel = [];
+List<String> recommendedCourseInstructor = [];
 List<String> recommendedCourseURL = [];
 List<String> recommendedCoursePlatform = [];
+List<String> recommendedCourseRating= [];
+
 
 String limitTitle(String text, int maxWords) {
   List<String> words = text.split(' ');
@@ -136,17 +138,34 @@ class _DashboardState extends State<Dashboard> {
               .map((course) => course['Course Name'].toString())
               .toList();
           recommendedCourseSummary = courses
-              .map((course) => course['Course Description'].toString())
+              .map((course) => course['Description'].toString())
               .toList();
 
-          recommendedCourseDuration = courses
-              .map((course) => course['course_duration'].toString())
-              .toList();
           recommendedCourseURL =
-              courses.map((course) => course['Course URL'].toString()).toList();
+              courses.map((course) => course['Course Link'].toString()).toList();
           recommendedCoursePlatform =
-              courses.map((course) => course['University'].toString()).toList();
+              courses.map((course) => course['Platform'].toString()).toList();
+          recommendedCourseInstructor =
+              courses.map((course) => course['Instructor/Institution'].toString()).toList();
+          recommendedCourseLevel =
+              courses.map((course) => course['Level'].toString()).toList();
+          recommendedCourseRating =
+              courses.map((course) => course['Rating'].toString()).toList();
         });
+        // print("summary");
+        // print(recommendedCourseSummary);
+        // print("Title");
+        // print(recommendedCourseTitles);
+        // print("links");
+        // print(recommendedCourseURL);
+        // print("level");
+        // print(recommendedCourseLevel);
+        // print("Ratings");
+        // print(recommendedCourseRating);
+        // print("Instructor");
+        // print(recommendedCourseInstructor);
+
+
       }
     } else {
       // Handle API errors here
@@ -401,7 +420,6 @@ class _DashboardState extends State<Dashboard> {
 
                                   return GestureDetector(
                                     onTap: () {
-                                      print(recommendedCourseURL);
                                       Get.toNamed(
                                         '/CourseDetailsPage',
                                         arguments: {
@@ -409,12 +427,17 @@ class _DashboardState extends State<Dashboard> {
                                               recommendedCourseTitles[index],
                                           'courseSummary':
                                               recommendedCourseSummary[index],
-                                          'courseDuration':
-                                              recommendedCourseDuration[index],
+
                                           'courseURL':
                                               recommendedCourseURL[index],
                                           'coursePlatform':
                                               recommendedCoursePlatform[index],
+                                          'courseLevel':
+                                          recommendedCourseLevel[index],
+                                          'courseRating':
+                                          recommendedCourseRating[index],
+                                          'courseInstructor':
+                                          recommendedCourseInstructor[index],
                                           'isSavedCourse': false,
                                         },
 
@@ -622,23 +645,27 @@ class _DashboardState extends State<Dashboard> {
                                 final courseData = savedCourses[index];
                                 // Use the null-aware and null coalescing operators to safely access properties
                                 String courseTitle =
-                                    courseData['courseTitle']?.toString() ??
-                                        "Course Title";
+                                    courseData['Course Name']?.toString() ??
+                                        "Course Name";
                                 String courseSummary =
-                                    courseData['courseSummary']?.toString() ??
-                                        "Course Summary";
+                                    courseData['Description']?.toString() ??
+                                        "Description";
                                 String courseURL =
-                                    courseData['course URL']?.toString() ??
-                                        "Course URL";
-                                String courseCost =
-                                    courseData['courseCost']?.toString() ??
-                                        "Course Cost";
-                                String courseDuration =
-                                    courseData['courseDuration']?.toString() ??
-                                        "Course Duration";
+                                    courseData['Course Link']?.toString() ??
+                                        "Course Link";
+                                String courseLevel =
+                                    courseData['Level']?.toString() ??
+                                        "Level";
                                 String coursePlatform =
-                                    courseData['coursePlatform']?.toString() ??
-                                        "Course Platform";
+                                    courseData['Platform']?.toString() ??
+                                        "Platform";
+                                String courseInstructor =
+                                    courseData['Instructor/Institution']?.toString() ??
+                                        "Instructor/Institution";
+                                String courseRating =
+                                    courseData['Rating']?.toString() ??
+                                        "Rating";
+
                                 print(courseTitle);
                                 return GestureDetector(
                                   onTap: () {
@@ -649,11 +676,14 @@ class _DashboardState extends State<Dashboard> {
                                     Get.toNamed(
                                       '/CourseDetailsPage',
                                       arguments: {
-                                        'courseTitle': courseTitle,
+                                        'Course Name': courseTitle,
                                         'courseSummary': courseSummary,
-                                        'courseDuration': courseDuration,
+                                        'courseLevel' : courseLevel,
                                         'courseURL': courseURL,
+                                        'courseInstructor' : courseInstructor,
                                         'coursePlatform': coursePlatform,
+                                        'courseRating': courseRating,
+
                                         'isSavedCourse': true,
                                       },
                                     );
@@ -675,26 +705,21 @@ class _DashboardState extends State<Dashboard> {
                                     ),
                                     child: Column(
                                       crossAxisAlignment:
+
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           limitTitle(courseTitle,
-                                              2), // Limit to 2 words
+                                              8), // Limit to 2 words
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
-                                            fontSize: 18,
+                                            fontSize: 14,
                                             color: Color(0xFF37474F),
                                           ),
-                                        ),
-                                        const SizedBox(height: 10),
-                                        Text(
-                                          courseSummary,
-                                          maxLines: 3,
+                                          maxLines: 4, // Set max lines for the title
                                           overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                            color: Color(0xFF607D8B),
-                                          ),
                                         ),
+
                                       ],
                                     ),
                                   ),
@@ -748,80 +773,71 @@ class _DashboardState extends State<Dashboard> {
                   // ElevatedButton(onPressed: (){print("SUGGESTED COURSES ,$recommendedCourses");},
                   //     child:Text("Print Courses")),
 
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 20,
-                      crossAxisSpacing: 20,
-                    ),
-                    itemCount: controller.recommendedCourses.value.length,
-                    itemBuilder: (context, index) {
-                      final courseData = controller.recommendedCourses.value[index];
-                      String courseTitle = courseData['Course Name']?.toString() ?? "Course Title";
-                      String courseSummary = courseData['Course Description']?.toString() ?? "Course Summary";
-                      String courseURL = courseData['Course URL']?.toString() ?? "Course URL";
-                      String coursePlatform = courseData['University']?.toString() ?? "Course Platform";
+      GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 3, // Display three tiles per row
+      mainAxisSpacing: 20,
+      crossAxisSpacing: 20,
+      ),
+      itemCount: controller.recommendedCourses.value.length,
+      itemBuilder: (context, index) {
+      final courseData = controller.recommendedCourses.value[index];
+      String courseTitle = courseData['Course Name']?.toString() ?? "Course Title";
+      String courseURL = courseData['Course URL']?.toString() ?? "Course URL";
+      String coursePlatform = courseData['University']?.toString() ?? "Course Platform";
 
-                      // Add some debugging prints
+      return GestureDetector(
+      onTap: () {
+      Get.toNamed(
+      '/suggestedCourses',
+      arguments: {
+      'courseTitle': courseTitle,
+      'courseURL': courseURL,
+      'coursePlatform': coursePlatform,
+      'isSavedCourse': false,
+      },
+      );
+      },
+      child: Container(
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+      color: Colors.lightBlueAccent.withOpacity(0.3),
+      borderRadius: BorderRadius.circular(15),
+      boxShadow: [
+      BoxShadow(
+      color: Colors.grey.withOpacity(0.3),
+      spreadRadius: 2,
+      blurRadius: 5,
+      offset: const Offset(0, 3),
+      ),
+      ],
+      ),
+      child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+      Text(
+
+      limitTitle(courseTitle, 3),
+      //   courseTitle ?? 'Default Title',
+      style: const TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: 10, // Lowered font size
+      color: Color(0xFF37474F),
+      ),
+      maxLines: 2,  // Limit to 2 lines
+      overflow: TextOverflow.ellipsis,
+      ),
+      ],
+      ),
+      ),
+      );
+      },
+      ),
 
 
-                      return GestureDetector(
-                        onTap: () {
-                          Get.toNamed(
-                            '/suggestedCourses',
-                            arguments: {
-                              'courseTitle': courseTitle,
-                              'courseSummary': courseSummary,
-                              'courseURL': courseURL,
-                              'coursePlatform': coursePlatform,
-                              'isSavedCourse': false,
-                            },
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(15),
-                          decoration: BoxDecoration(
-                            color: Colors.lightBlueAccent.withOpacity(0.3),
-                            borderRadius: BorderRadius.circular(15),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.3),
-                                spreadRadius: 2,
-                                blurRadius: 5,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                limitTitle(courseTitle, 2),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                  color: Color(0xFF37474F),
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                courseSummary,
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  color: Color(0xFF607D8B),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-
-                ],
+    ],
               ),
             ),
           ),
@@ -829,6 +845,7 @@ class _DashboardState extends State<Dashboard> {
 
       case PageState.State3:
         backgroundColor = Colors.orange;
+
         double screenHeight = MediaQuery.of(context).size.height;
         double screenWidth = MediaQuery.of(context).size.width;
         return Scaffold(
