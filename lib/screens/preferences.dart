@@ -37,7 +37,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
   List<String> recommendedCourseSummary = [];
   List<String> recommendedCourseCost = [];
   List<String> recommendedCourseDuration = [];
-  List<String> recommendedCourseURL = [];
+  List<String> recommendedcourseUrl = [];
   List<String> recommendedCoursePlatform = [];
 
   void fetchRecommendedCourses() async {
@@ -66,7 +66,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
 
     // const apiUrl = 'https://courseguide.cyclic.cloud/recommend';
     // const apiUrl = 'http://127.0.0.1:5000/recommend';
-    const apiUrl = 'http://192.168.73.159:5000/recommend';
+    const apiUrl = 'http://192.168.139.159:5050/recommend';
     final response = await http.post(
       Uri.parse(apiUrl),
       headers: {'Content-Type': 'application/json'},
@@ -96,7 +96,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
           recommendedCourseSummary = courses.map((course) => course['Course Description'].toString()).toList();
           recommendedCourseCost = courses.map((course) => course['cost'].toString()).toList();
           recommendedCourseDuration = courses.map((course) => course['course_duration'].toString()).toList();
-          recommendedCourseURL = courses.map((course) => course['Course URL'].toString()).toList();
+          recommendedcourseUrl = courses.map((course) => course['Course URL'].toString()).toList();
           recommendedCoursePlatform = courses.map((course) => course['University'].toString()).toList();
         });
       }
@@ -302,7 +302,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
                                       'courseSummary': recommendedCourseSummary[index],
                                       'courseCost': recommendedCourseCost[index],
                                       'courseDuration': recommendedCourseDuration[index],
-                                      'courseURL': recommendedCourseURL[index],
+                                      'courseUrl': recommendedcourseUrl[index],
                                       'coursePlatform': recommendedCoursePlatform[index],
                                       'isSavedCourse': false,
                                     },

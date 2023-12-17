@@ -24,14 +24,13 @@ final List<String> durationOptions = [
   'Less than 4 months',
   'Less than 6 months',
 ];
-String selectedDuration = 'Less than 6 months';
-final List<String> courseLevels = ['Easy', 'Intermediate', 'Hard'];
-final List<String> costOptions = ['Free', 'Nanodegree'];
+final List<String> courseLevels = ['Any', 'Beginner', 'Intermediate', 'Advanced'];
+final List<String> platformOptions = ['Any', 'Udemy', 'Udacity', 'EDX', 'Coursera'];
 bool isFetchingRecommendations = false;
 final TextEditingController levelController =
-    TextEditingController(text: 'Easy');
-final TextEditingController costController =
-    TextEditingController(text: 'Free');
+    TextEditingController(text: 'Any');
+final TextEditingController platformController =
+    TextEditingController(text: 'Any');
 final TextEditingController customFieldController = TextEditingController();
 final PreferencesController preferencesController = PreferencesController();
 final CustomDrawerController drawerController =
@@ -46,14 +45,7 @@ final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 int numberOfCoursesToShow = 2;
 bool showAllCourses = false;
-List<String> recommendedCourseTitles = [];
-List<String> recommendedCourseSummary = [];
-List<String> recommendedCourseLevel = [];
-List<String> recommendedCourseInstructor = [];
-List<String> recommendedCourseURL = [];
-List<String> recommendedCoursePlatform = [];
-List<String> recommendedCourseRating= [];
-
+List<Map<String, dynamic>> searchResultCourses = [];
 
 String limitTitle(String text, int maxWords) {
   List<String> words = text.split(' ');
@@ -78,8 +70,7 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   // Initial state
   PageState _currentPageState = PageState.State2;
-  void fetchRecommendedCourses() async {
-
+  Future<void> fetchRecommendedCourses() async {
     setState(() {
       isFetchingRecommendations = true;
     });
@@ -89,12 +80,12 @@ class _DashboardState extends State<Dashboard> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('No Courses Found'),
-            content: Text(
+            title: const Text('No Courses Found'),
+            content: const Text(
                 'Sorry, no courses were found related to your search criteria.'),
             actions: <Widget>[
               TextButton(
-                child: Text('OK'),
+                child: const Text('OK'),
                 onPressed: () {
                   Navigator.of(context).pop(); // Close the dialog
                 },
@@ -113,13 +104,11 @@ class _DashboardState extends State<Dashboard> {
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
         'user_input': customFieldController.text.toLowerCase(),
-        'duration': selectedDuration.toLowerCase(),
-        'cost': costController.text.toLowerCase(),
+        'cost': platformController.text.toLowerCase(),
         'level': levelController.text.toLowerCase(),
+        'platform' : platformController.text.toLowerCase(),
       }),
     );
-    // print('Response status code: ${response.statusCode}');
-    // print('Response body: ${response.body}');
 
     setState(() {
       isFetchingRecommendations = false;
@@ -134,38 +123,21 @@ class _DashboardState extends State<Dashboard> {
         showNoCoursesDialog(context);
       } else {
         setState(() {
-          recommendedCourseTitles = courses
-              .map((course) => course['Course Name'].toString())
-              .toList();
-          recommendedCourseSummary = courses
-              .map((course) => course['Description'].toString())
-              .toList();
-
-          recommendedCourseURL =
-              courses.map((course) => course['Course Link'].toString()).toList();
-          recommendedCoursePlatform =
-              courses.map((course) => course['Platform'].toString()).toList();
-          recommendedCourseInstructor =
-              courses.map((course) => course['Instructor/Institution'].toString()).toList();
-          recommendedCourseLevel =
-              courses.map((course) => course['Level'].toString()).toList();
-          recommendedCourseRating =
-              courses.map((course) => course['Rating'].toString()).toList();
+          searchResultCourses.clear();
+          List<Map<String, String>> updatedTitlesCourses =
+              courses.map((course) {
+            return {
+              'courseName': course['Course Name'].toString(),
+              'courseDescription': course['Description'].toString(),
+              'courseUrl': course['Course Link'].toString(),
+              'coursePlatform': course['Platform'].toString(),
+              'courseInstructor': course['Instructor/Institution'].toString(),
+              'courseLevel': course['Level'].toString(),
+              'courseRating': course['Rating'].toString(),
+            };
+          }).toList();
+          searchResultCourses.addAll(updatedTitlesCourses);
         });
-        // print("summary");
-        // print(recommendedCourseSummary);
-        // print("Title");
-        // print(recommendedCourseTitles);
-        // print("links");
-        // print(recommendedCourseURL);
-        // print("level");
-        // print(recommendedCourseLevel);
-        // print("Ratings");
-        // print(recommendedCourseRating);
-        // print("Instructor");
-        // print(recommendedCourseInstructor);
-
-
       }
     } else {
       // Handle API errors here
@@ -178,7 +150,7 @@ class _DashboardState extends State<Dashboard> {
       extendBodyBehindAppBar: true,
       body: _buildBody(),
       bottomNavigationBar: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
               Color(0xFF6FB1FF),
@@ -270,25 +242,6 @@ class _DashboardState extends State<Dashboard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        DropdownButtonFormField<String>(
-                          value: selectedDuration,
-                          items: durationOptions.map((duration) {
-                            return DropdownMenuItem<String>(
-                              value: duration,
-                              child: Text(duration),
-                            );
-                          }).toList(),
-                          onChanged: (newValue) {
-                            setState(() {
-                              selectedDuration = newValue!;
-                            });
-                          },
-                          decoration: InputDecoration(
-                            prefixIcon: Icon(Icons.access_time),
-                            labelText: "Duration",
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
                         const SizedBox(height: 20),
                         DropdownButtonFormField<String>(
                           value: levelController.text,
@@ -301,7 +254,7 @@ class _DashboardState extends State<Dashboard> {
                           onChanged: (newValue) {
                             levelController.text = newValue!;
                           },
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             prefixIcon: Icon(Icons.fingerprint_rounded),
                             labelText: "Level",
                             border: OutlineInputBorder(),
@@ -309,19 +262,19 @@ class _DashboardState extends State<Dashboard> {
                         ),
                         const SizedBox(height: 20),
                         DropdownButtonFormField<String>(
-                          value: costController.text,
-                          items: costOptions.map((option) {
+                          value: platformController.text,
+                          items: platformOptions.map((option) {
                             return DropdownMenuItem<String>(
                               value: option,
                               child: Text(option),
                             );
                           }).toList(),
                           onChanged: (newValue) {
-                            costController.text = newValue!;
+                            platformController.text = newValue!;
                           },
                           decoration: const InputDecoration(
-                            prefixIcon: Icon(Icons.attach_money_rounded),
-                            labelText: "Cost",
+                            prefixIcon: Icon(Icons.school),
+                            labelText: "Platform",
                             border: OutlineInputBorder(),
                           ),
                         ),
@@ -354,13 +307,13 @@ class _DashboardState extends State<Dashboard> {
                                     // savedSearchWords.add(searchWord);
 
                                     // Trigger the search
-                                    fetchRecommendedCourses();
+                                    await fetchRecommendedCourses();
                                   },
                             child: isFetchingRecommendations
-                                ? CircularProgressIndicator()
+                                ? const CircularProgressIndicator()
                                 : Text(
                                     'Search Courses'.toUpperCase(),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         color: Colors
                                             .white, // Change the text color to white
                                         fontWeight: FontWeight.bold,
@@ -374,7 +327,7 @@ class _DashboardState extends State<Dashboard> {
                             ),
                           ),
                         ),
-                        if (recommendedCourseTitles.isNotEmpty)
+                        if (searchResultCourses.isNotEmpty)
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -396,12 +349,14 @@ class _DashboardState extends State<Dashboard> {
                                   mainAxisSpacing: 20,
                                   crossAxisSpacing: 20,
                                 ),
-                                itemCount: recommendedCourseTitles.length,
+                                itemCount: searchResultCourses.length,
                                 itemBuilder: (context, index) {
                                   // Get the course title and split it by space
-                                  final courseTitle =
-                                      recommendedCourseTitles[index];
-                                  final titleWords = courseTitle.split(' ');
+                                  final recommendedCourse =
+                                      searchResultCourses[index];
+                                  final courseName =
+                                      recommendedCourse['courseName'];
+                                  final titleWords = courseName.split(' ');
 
                                   // Ensure there are at least three words in the title
                                   if (titleWords.length < 3) {
@@ -420,27 +375,14 @@ class _DashboardState extends State<Dashboard> {
 
                                   return GestureDetector(
                                     onTap: () {
+                                      Map<String, dynamic> course =
+                                          searchResultCourses[index];
                                       Get.toNamed(
                                         '/CourseDetailsPage',
                                         arguments: {
-                                          'courseTitle':
-                                              recommendedCourseTitles[index],
-                                          'courseSummary':
-                                              recommendedCourseSummary[index],
-
-                                          'courseURL':
-                                              recommendedCourseURL[index],
-                                          'coursePlatform':
-                                              recommendedCoursePlatform[index],
-                                          'courseLevel':
-                                          recommendedCourseLevel[index],
-                                          'courseRating':
-                                          recommendedCourseRating[index],
-                                          'courseInstructor':
-                                          recommendedCourseInstructor[index],
+                                          'course': course,
                                           'isSavedCourse': false,
                                         },
-
                                       );
                                     },
                                     child: Container(
@@ -472,7 +414,8 @@ class _DashboardState extends State<Dashboard> {
                                           ),
                                           const SizedBox(height: 10),
                                           Text(
-                                            recommendedCourseSummary[index],
+                                            recommendedCourse[
+                                                'courseDescription'],
                                             maxLines:
                                                 2, // Adjust this value to limit the number of lines for summary
                                             overflow: TextOverflow
@@ -528,8 +471,8 @@ class _DashboardState extends State<Dashboard> {
                   ),
                   Container(
                     child: TextFormField(
-                      style: TextStyle(color: Colors.black),
-                      decoration: InputDecoration(
+                      style: const TextStyle(color: Colors.black),
+                      decoration: const InputDecoration(
                         labelText: "Search",
                         hintText: "Search",
                         labelStyle: TextStyle(color: Colors.black),
@@ -575,7 +518,7 @@ class _DashboardState extends State<Dashboard> {
                         // If there are no saved courses, display a message
                         return Column(
                           children: [
-                            SizedBox(
+                            const SizedBox(
                               height: 30,
                             ),
                             Center(
@@ -594,9 +537,9 @@ class _DashboardState extends State<Dashboard> {
                                     ),
                                   ],
                                 ),
-                                child: Column(
+                                child: const Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: const [
+                                  children: [
                                     Text(
                                       "Your saved courses will be shown here.",
                                       style: TextStyle(
@@ -605,7 +548,7 @@ class _DashboardState extends State<Dashboard> {
                                         color: Color(0xFF37474F),
                                       ),
                                     ),
-                                    const SizedBox(height: 10),
+                                    SizedBox(height: 10),
                                     Text(
                                       "Start exploring and saving courses now!",
                                       maxLines: 3,
@@ -622,7 +565,7 @@ class _DashboardState extends State<Dashboard> {
                         );
                       } else {
                         final savedCourses = snapshot.data!.docs
-                            .map((doc) => doc.data() as Map<String, dynamic>)
+                            .map((doc) => doc.data())
                             .toList();
                         print("courses length");
                         print(savedCourses.length);
@@ -640,50 +583,25 @@ class _DashboardState extends State<Dashboard> {
                               ),
                               itemCount: showAllCourses
                                   ? savedCourses.length
-                                  : savedCourses.length == 1 ? 1 : 2,
+                                  : savedCourses.length == 1
+                                      ? 1
+                                      : 2,
                               itemBuilder: (context, index) {
-                                final courseData = savedCourses[index];
-                                // Use the null-aware and null coalescing operators to safely access properties
-                                String courseTitle =
-                                    courseData['Course Name']?.toString() ??
+                                Map<String, dynamic> courseData =
+                                    savedCourses[index];
+                                String courseName =
+                                    courseData['courseName']?.toString() ??
                                         "Course Name";
-                                String courseSummary =
-                                    courseData['Description']?.toString() ??
+                                String courseDescription =
+                                    courseData['courseDescription']
+                                            ?.toString() ??
                                         "Description";
-                                String courseURL =
-                                    courseData['Course Link']?.toString() ??
-                                        "Course Link";
-                                String courseLevel =
-                                    courseData['Level']?.toString() ??
-                                        "Level";
-                                String coursePlatform =
-                                    courseData['Platform']?.toString() ??
-                                        "Platform";
-                                String courseInstructor =
-                                    courseData['Instructor/Institution']?.toString() ??
-                                        "Instructor/Institution";
-                                String courseRating =
-                                    courseData['Rating']?.toString() ??
-                                        "Rating";
-
-                                print(courseTitle);
                                 return GestureDetector(
                                   onTap: () {
-                                    print("title from saved");
-                                    print(courseTitle);
-                                    print("course from saved");
-                                    print(courseURL);
                                     Get.toNamed(
                                       '/CourseDetailsPage',
                                       arguments: {
-                                        'Course Name': courseTitle,
-                                        'courseSummary': courseSummary,
-                                        'courseLevel' : courseLevel,
-                                        'courseURL': courseURL,
-                                        'courseInstructor' : courseInstructor,
-                                        'coursePlatform': coursePlatform,
-                                        'courseRating': courseRating,
-
+                                        'course': courseData,
                                         'isSavedCourse': true,
                                       },
                                     );
@@ -705,21 +623,33 @@ class _DashboardState extends State<Dashboard> {
                                     ),
                                     child: Column(
                                       crossAxisAlignment:
-
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          limitTitle(courseTitle,
+                                          limitTitle(courseName,
                                               8), // Limit to 2 words
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 14,
                                             color: Color(0xFF37474F),
                                           ),
-                                          maxLines: 4, // Set max lines for the title
+                                          maxLines:
+                                              4, // Set max lines for the title
                                           overflow: TextOverflow.ellipsis,
                                         ),
-
+                                        Expanded(
+                                          child: Text(
+                                            courseDescription,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.normal,
+                                              fontSize: 12,
+                                              color: Color(0xFF37474F),
+                                            ),
+                                            maxLines:
+                                                4, // Set max lines for the title
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -729,28 +659,29 @@ class _DashboardState extends State<Dashboard> {
                             const SizedBox(
                               height: 10,
                             ),
-                            if(savedCourses.length > 2)Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                TextButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      if (showAllCourses) {
-                                        numberOfCoursesToShow = 2;
-                                      }
-                                      showAllCourses = !showAllCourses;
-                                    });
-                                  },
-                                  child: Text(
-                                    showAllCourses ? "Hide" : "See All",
-                                    style: const TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
+                            if (savedCourses.length > 2)
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  TextButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        if (showAllCourses) {
+                                          numberOfCoursesToShow = 2;
+                                        }
+                                        showAllCourses = !showAllCourses;
+                                      });
+                                    },
+                                    child: Text(
+                                      showAllCourses ? "Hide" : "See All",
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
+                                ],
+                              ),
                           ],
                         );
                       }
@@ -773,71 +704,82 @@ class _DashboardState extends State<Dashboard> {
                   // ElevatedButton(onPressed: (){print("SUGGESTED COURSES ,$recommendedCourses");},
                   //     child:Text("Print Courses")),
 
-      GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-      crossAxisCount: 3, // Display three tiles per row
-      mainAxisSpacing: 20,
-      crossAxisSpacing: 20,
-      ),
-      itemCount: controller.recommendedCourses.value.length,
-      itemBuilder: (context, index) {
-      final courseData = controller.recommendedCourses.value[index];
-      String courseTitle = courseData['Course Name']?.toString() ?? "Course Title";
-      String courseURL = courseData['Course URL']?.toString() ?? "Course URL";
-      String coursePlatform = courseData['University']?.toString() ?? "Course Platform";
-
-      return GestureDetector(
-      onTap: () {
-      Get.toNamed(
-      '/suggestedCourses',
-      arguments: {
-      'courseTitle': courseTitle,
-      'courseURL': courseURL,
-      'coursePlatform': coursePlatform,
-      'isSavedCourse': false,
-      },
-      );
-      },
-      child: Container(
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-      color: Colors.lightBlueAccent.withOpacity(0.3),
-      borderRadius: BorderRadius.circular(15),
-      boxShadow: [
-      BoxShadow(
-      color: Colors.grey.withOpacity(0.3),
-      spreadRadius: 2,
-      blurRadius: 5,
-      offset: const Offset(0, 3),
-      ),
-      ],
-      ),
-      child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-      Text(
-
-      limitTitle(courseTitle, 3),
-      //   courseTitle ?? 'Default Title',
-      style: const TextStyle(
-      fontWeight: FontWeight.bold,
-      fontSize: 10, // Lowered font size
-      color: Color(0xFF37474F),
-      ),
-      maxLines: 2,  // Limit to 2 lines
-      overflow: TextOverflow.ellipsis,
-      ),
-      ],
-      ),
-      ),
-      );
-      },
-      ),
-
-
-    ],
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3, // Display three tiles per row
+                      mainAxisSpacing: 20,
+                      crossAxisSpacing: 20,
+                    ),
+                    itemCount: controller.recommendedCourses.value.length,
+                    itemBuilder: (context, index) {
+                      final course =
+                          controller.recommendedCourses.value[index];
+                      String courseName =
+                          course['courseName']?.toString() ??
+                              "Course Name";
+                      String courseDescription =
+                          course['courseDescription']?.toString() ?? "Course Description";
+                      return GestureDetector(
+                        onTap: () {
+                          Get.toNamed(
+                            '/CourseDetailsPage',
+                            arguments: {
+                              'course' : course,
+                              'isSavedCourse': false,
+                            },
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(15),
+                          decoration: BoxDecoration(
+                            color: Colors.lightBlueAccent.withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(15),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.3),
+                                spreadRadius: 2,
+                                blurRadius: 5,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                limitTitle(courseName, 3),
+                                //   courseTitle ?? 'Default Title',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 10, // Lowered font size
+                                  color: Color(0xFF37474F),
+                                ),
+                                maxLines: 2, // Limit to 2 lines
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Expanded(
+                                child: Text(
+                                  courseDescription,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.normal,
+                                    fontSize: 12,
+                                    color: Color(0xFF37474F),
+                                  ),
+                                  maxLines:
+                                  4, // Set max lines for the title
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
           ),
@@ -867,7 +809,7 @@ class _DashboardState extends State<Dashboard> {
                     Positioned(
                       top: 20, // Adjust the top position based on your design
                       width: screenWidth,
-                      child: Center(
+                      child: const Center(
                         child: Text(
                           'Profile',
                           style: TextStyle(
@@ -894,15 +836,15 @@ class _DashboardState extends State<Dashboard> {
                       crossAxisAlignment:
                           CrossAxisAlignment.start, // Align text to the start
                       children: [
-                        SizedBox(
+                        const SizedBox(
                           height: 59,
                         ),
-                        Text(
+                        const Text(
                           'Settings',
                           style: TextStyle(
                               fontSize: 20, fontWeight: FontWeight.bold),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 29,
                         ),
                         GestureDetector(
@@ -919,8 +861,8 @@ class _DashboardState extends State<Dashboard> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(
                                       horizontal: 16.0),
                                   child: Text(
                                     'Edit Profile',
@@ -931,7 +873,7 @@ class _DashboardState extends State<Dashboard> {
                                   ),
                                 ),
                                 IconButton(
-                                  icon: Icon(Icons
+                                  icon: const Icon(Icons
                                       .edit), // Replace with your desired icon
                                   onPressed: () {},
                                 ),
@@ -939,7 +881,7 @@ class _DashboardState extends State<Dashboard> {
                             ),
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 29,
                         ),
                         GestureDetector(
@@ -957,8 +899,8 @@ class _DashboardState extends State<Dashboard> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(
                                       horizontal: 16.0),
                                   child: Text(
                                     'Feedback',
@@ -969,25 +911,25 @@ class _DashboardState extends State<Dashboard> {
                                   ),
                                 ),
                                 IconButton(
-                                  icon: Icon(Icons
+                                  icon: const Icon(Icons
                                       .feedback), // Replace with your desired icon
                                   onPressed: () {
                                     // Handle icon click, e.g., open a feedback dialog
-
                                   },
                                 ),
                               ],
                             ),
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 29,
                         ),
                         GestureDetector(
                           onTap: () async {
                             final email = 'malikkhizarhayyat78@gmail.com';
                             final subject = 'CourseGuide Customer Service';
-                            final mailtoLink = Uri.parse('mailto:$email?subject=$subject');
+                            final mailtoLink =
+                                Uri.parse('mailto:$email?subject=$subject');
 
                             if (await canLaunchUrl(mailtoLink)) {
                               await launchUrl(mailtoLink);
@@ -1005,8 +947,9 @@ class _DashboardState extends State<Dashboard> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 16.0),
                                   child: Text(
                                     'Contact Us',
                                     style: TextStyle(
@@ -1016,7 +959,7 @@ class _DashboardState extends State<Dashboard> {
                                   ),
                                 ),
                                 IconButton(
-                                  icon: Icon(Icons.contact_support),
+                                  icon: const Icon(Icons.contact_support),
                                   onPressed: () {
                                     // Handle icon click, e.g., open a feedback dialog
                                   },
@@ -1025,13 +968,9 @@ class _DashboardState extends State<Dashboard> {
                             ),
                           ),
                         ),
-
-
-
-                        SizedBox(
+                        const SizedBox(
                           height: 29,
-                        )
-                        ,
+                        ),
                         Container(
                           height: screenHeight * 0.1,
                           width: screenWidth * 0.9,
@@ -1043,7 +982,7 @@ class _DashboardState extends State<Dashboard> {
                           ),
                           // Add child widgets for the new Container here
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 29,
                         ),
                         SizedBox(
@@ -1051,13 +990,14 @@ class _DashboardState extends State<Dashboard> {
                           height: 45,
                           child: ElevatedButton(
                             onPressed: () async {
-                              final controller = Get.find<FirebaseAuthController>();
+                              final controller =
+                                  Get.find<FirebaseAuthController>();
                               await controller.signOut();
                               Get.offAllNamed('/');
                             },
                             child: Text(
                               "Logout".toUpperCase(),
-                              style: TextStyle(
+                              style: const TextStyle(
                                   color: Colors
                                       .white, // Change the text color to white
                                   fontWeight: FontWeight.bold,
@@ -1071,7 +1011,7 @@ class _DashboardState extends State<Dashboard> {
                             ),
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 19,
                         )
                       ],
@@ -1100,8 +1040,8 @@ class _DashboardState extends State<Dashboard> {
                         builder: (context, snapshot) {
                           if (!snapshot.hasData) {
                             return Container(
-                              padding: EdgeInsets.all(16),
-                              child: Column(
+                              padding: const EdgeInsets.all(16),
+                              child: const Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -1139,7 +1079,7 @@ class _DashboardState extends State<Dashboard> {
                                         15), // Add some space between the image and text
                                 Expanded(
                                   child: Container(
-                                    padding: EdgeInsets.all(0),
+                                    padding: const EdgeInsets.all(0),
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
@@ -1149,7 +1089,7 @@ class _DashboardState extends State<Dashboard> {
                                         Text(
                                           (data['displayName'] ?? 'Username')
                                               .toUpperCase(), // Uppercase modification
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             color: Colors.black,
                                             fontWeight: FontWeight
                                                 .w700, // Bold modification
@@ -1157,7 +1097,7 @@ class _DashboardState extends State<Dashboard> {
                                         ),
                                         Text(
                                           data['email'] ?? 'user@example.com',
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             color: Colors.black,
                                             fontWeight: FontWeight.w400,
                                           ),
@@ -1179,7 +1119,7 @@ class _DashboardState extends State<Dashboard> {
                                             0.9), // Set your desired light color
                                       ),
                                       padding: const EdgeInsets.all(6.0),
-                                      child: Icon(
+                                      child: const Icon(
                                         Icons.edit_rounded,
                                         color: Colors.white,
                                       ),
@@ -1207,7 +1147,7 @@ class _DashboardState extends State<Dashboard> {
       child: Center(
         child: Text(
           'Content for ${_currentPageState.toString()}',
-          style: TextStyle(color: Colors.white),
+          style: const TextStyle(color: Colors.white),
         ),
       ),
     );

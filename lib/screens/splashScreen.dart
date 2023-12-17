@@ -1,5 +1,7 @@
 import 'package:course_guide/controllers/splash_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/simple/get_view.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 
@@ -8,6 +10,9 @@ class SplashScreen extends GetView<SplashController> {
 
   @override
   Widget build(BuildContext context) {
+    final height = context.height;
+    final width = context.width;
+
     const colorizeColors = [
       Colors.purple,
       Colors.blue,
@@ -21,6 +26,8 @@ class SplashScreen extends GetView<SplashController> {
     );
 
     return Container(
+      height: height,
+      width: width,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -34,6 +41,7 @@ class SplashScreen extends GetView<SplashController> {
         ),
       ),
       child: Scaffold(
+        extendBody: true,
         backgroundColor: Colors.transparent,
         body: Center(
           child: Column(

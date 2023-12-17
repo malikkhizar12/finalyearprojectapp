@@ -27,14 +27,13 @@ class FirebaseAuthController extends GetxController {
 
   final signupFormKey = GlobalKey<FormState>();
   final signInWithEmailFormKey = GlobalKey<FormState>();
-  final _savedCoursesController = StreamController<List<Map<String, dynamic>>>.broadcast();
+  final _savedCoursesController =
+      StreamController<List<Map<String, dynamic>>>.broadcast();
   final TextEditingController emailController = TextEditingController(),
       passwordController = TextEditingController(),
       nameController = TextEditingController(),
       phoneController = TextEditingController(),
       EducationStatusController = TextEditingController(),
-
-
       repeatPasswordController = TextEditingController();
 
   final TextEditingController loginEmailController = TextEditingController(),
@@ -45,14 +44,13 @@ class FirebaseAuthController extends GetxController {
   final box = GetStorage();
   RxList recommendedCourses = [].obs;
 
-
-
   saveEmailPassword({required bool rememberMe}) {
     if (rememberMe) {
       box.write('email', emailController.text);
       box.write('password', passwordController.text);
     }
   }
+
   void setSelectedEducationStatus(String? newValue) {
     selectedEducationStatus.value = newValue ?? '';
   }
@@ -68,12 +66,14 @@ class FirebaseAuthController extends GetxController {
       }
     });
   }
+
   Future<void> storeFeedback(String feedbackText1) async {
     try {
       final user = _auth.currentUser;
 
       if (user == null) {
-        showToast('Error', 'You need to be logged in to submit feedback', err: true);
+        showToast('Error', 'You need to be logged in to submit feedback',
+            err: true);
         return;
       }
 
@@ -100,7 +100,6 @@ class FirebaseAuthController extends GetxController {
     }
   }
 
-
   Future<List<String>> getSavedCourses() async {
     try {
       final user = _auth.currentUser;
@@ -114,44 +113,43 @@ class FirebaseAuthController extends GetxController {
           .where('userId', isEqualTo: user.uid)
           .get();
 
-      final savedCourses = snapshot.docs.map((doc) => doc['courseURL'] as String).toList();
+      final savedCourses =
+          snapshot.docs.map((doc) => doc['courseUrl'] as String).toList();
       return savedCourses;
     } catch (e) {
       print('Error fetching saved courses: $e');
       return [];
     }
   }
-  Future<void> saveCourse(String courseTitle, String courseSummary,String coursePlatform, String courseURL) async {
+
+  Future<void> saveCourse({required Map<String, dynamic> course}) async {
     startLoading();
     try {
+      print(course.runtimeType);
       final user = _auth.currentUser;
 
       if (user == null) {
         stopLoading();
-        showToast('Error', 'You need to be logged in to save a course', err: true);
+        showToast('Error', 'You need to be logged in to save a course',
+            err: true);
         return;
       }
 
       // Check if the course URL already exists in the saved courses list
       final savedCourses = await getSavedCourses();
-      if (savedCourses.contains(courseURL)) {
+      if (savedCourses.contains(course['courseUrl'])) {
         stopLoading();
         // Course already saved
         showToast('Info', 'Course already saved');
         return;
       }
-
       // Save the course to Firestore
-      await _firestore.collection('savedCourses').add({
-        'isDeleted' : false,
-        'userId': user.uid,
-        'courseTitle': courseTitle,
-        'courseSummary': courseSummary,
-        'coursePlatform': coursePlatform,
-
-        'courseURL': courseURL,
-        'timestamp': FieldValue.serverTimestamp(),
-      });
+      course['isDeleted'] = false;
+      course['userId'] = user.uid;
+      course['timestamp'] = DateTime.now();
+      await _firestore
+          .collection('savedCourses')
+          .add(course as Map<String, dynamic>);
       stopLoading();
       showToast('Success', 'Course saved successfully');
     } catch (e) {
@@ -160,14 +158,16 @@ class FirebaseAuthController extends GetxController {
       showToast('Error', 'Failed to save course', err: true);
     }
   }
-  Future<void> deleteCourse(String courseTitle) async {
+
+  Future<void> deleteCourse(String courseName) async {
     startLoading();
     try {
       final user = _auth.currentUser;
 
       if (user == null) {
         print('User not logged in');
-        showToast('Error', 'You need to be logged in to delete a course', err: true);
+        showToast('Error', 'You need to be logged in to delete a course',
+            err: true);
         return;
       }
 
@@ -175,10 +175,11 @@ class FirebaseAuthController extends GetxController {
       final querySnapshot = await _firestore
           .collection('savedCourses')
           .where('userId', isEqualTo: user.uid)
-          .where('courseTitle', isEqualTo: courseTitle)
+          .where('courseName', isEqualTo: courseName)
           .get();
 
-      final docToDelete = querySnapshot.docs.isNotEmpty ? querySnapshot.docs.first : null;
+      final docToDelete =
+          querySnapshot.docs.isNotEmpty ? querySnapshot.docs.first : null;
 
       if (docToDelete != null) {
         // Update the document to mark the course as deleted
@@ -194,7 +195,6 @@ class FirebaseAuthController extends GetxController {
       showToast('Error', 'Failed to delete course', err: true);
     }
   }
-
 
   Stream<List<Map<String, dynamic>>> savedCoursesStream() {
     _updateSavedCourses(); // Fetch and update saved courses when the stream is requested
@@ -215,13 +215,16 @@ class FirebaseAuthController extends GetxController {
           .where('userId', isEqualTo: user.uid)
           .get();
 
-      final savedCourses = snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+      final savedCourses = snapshot.docs
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .toList();
       _savedCoursesController.add(savedCourses);
     } catch (e) {
       print('Error fetching saved courses: $e');
       _savedCoursesController.addError(e);
     }
   }
+
   // Future<List<Map<String, dynamic>>> showSavedCourses() async {
   //   try {
   //     final user = _auth.currentUser;
@@ -245,35 +248,39 @@ class FirebaseAuthController extends GetxController {
   // }
   Future<void> saveSearchWord(String searchWord) async {
     // Reference to the Firestore collection where you want to store search words
-    CollectionReference searchWordsCollection = FirebaseFirestore.instance.collection('searchWords');
+    CollectionReference searchWordsCollection =
+        FirebaseFirestore.instance.collection('searchWords');
 
     // Add the search word to Firestore
     await searchWordsCollection.add({
       'word': searchWord,
-      'timestamp': FieldValue.serverTimestamp(), // Optional: Add a timestamp for sorting or tracking when the search occurred
+      'timestamp': FieldValue
+          .serverTimestamp(), // Optional: Add a timestamp for sorting or tracking when the search occurred
     });
     print("search words saved");
   }
-    Future<List<String>> fetchSavedSearchWords() async {
-      try {
-        // Reference to the Firestore collection where search words are stored
-        CollectionReference searchWordsCollection = FirebaseFirestore.instance.collection('searchWords');
 
-        // Fetch all documents from the collection
-        QuerySnapshot<Object?> snapshot = await searchWordsCollection.get();
+  Future<List<String>> fetchSavedSearchWords() async {
+    try {
+      // Reference to the Firestore collection where search words are stored
+      CollectionReference searchWordsCollection =
+          FirebaseFirestore.instance.collection('searchWords');
 
-        // Extract search words from the documents
-        List<String> searchWords = snapshot.docs.map((doc) => doc['word'] as String).toList();
+      // Fetch all documents from the collection
+      QuerySnapshot<Object?> snapshot = await searchWordsCollection.get();
 
-        // Optionally, you can print the search words
+      // Extract search words from the documents
+      List<String> searchWords =
+          snapshot.docs.map((doc) => doc['word'] as String).toList();
 
+      // Optionally, you can print the search words
 
-        return searchWords;
-      } catch (e) {
-        print('Error fetching saved search words: $e');
-        return [];
-      }
+      return searchWords;
+    } catch (e) {
+      print('Error fetching saved search words: $e');
+      return [];
     }
+  }
 
   Future<void> signupWithEmailPassword(BuildContext context) async {
     if (!signupFormKey.currentState!.validate()) {
@@ -299,7 +306,6 @@ class FirebaseAuthController extends GetxController {
     await signInWithEmailAndPassword(
             loginEmailController.text, loginPasswordController.text)
         .then((User? user) async {
-
       if (user != null) {
         await performSignUpTask(user);
       } else {
@@ -310,8 +316,7 @@ class FirebaseAuthController extends GetxController {
 
   Future<void> authenticateWithGoogle(BuildContext context) async {
     startLoading();
-    await signInWithGoogle()
-        .then((User? user) async {
+    await signInWithGoogle().then((User? user) async {
       print(user);
       if (user != null) {
         await performSignUpTask(user);
@@ -366,6 +371,7 @@ class FirebaseAuthController extends GetxController {
       }
     }
   }
+
   Future<void> sendSearchWordsToBackend() async {
     final apiUrl = 'http://192.168.139.159:5050/suggestions';
     List<String> searchWords = await fetchSavedSearchWords();
@@ -376,17 +382,37 @@ class FirebaseAuthController extends GetxController {
         headers: {'Content-Type': 'application/json'},
         body: json.encode({'search_words': searchWords}),
       );
-
       if (response.statusCode == 200) {
-        List<Map<String, dynamic>> courses = List<Map<String, dynamic>>.from(
-          json.decode(response.body).map((x) => Map<String, dynamic>.from(x)),
-        );
+        List<Map<String, dynamic>> courses = [];
 
-        // Update Rx variables
-        recommendedCourses.addAll(courses);
+        // Decode the JSON response and handle possible errors
+        try {
+          dynamic responseBody = json.decode(response.body);
+          if (responseBody is List) {
+            courses = List<Map<String, dynamic>>.from(responseBody.map((x) =>
+            x is Map ? Map<String, dynamic>.from(x) : <String, dynamic>{}));
+          }
+        } catch (e) {
+          print('Error decoding JSON response: $e');
+        }
+
+        // Update recommendedCourses list
+        recommendedCourses.clear();
+        List<Map<String, String>> updatedTitlesCourses = courses.map((course) {
+          return {
+            'courseName': course['Course Name']?.toString() ?? '',
+            'courseDescription': course['Description']?.toString() ?? '',
+            'courseUrl': course['Course Link']?.toString() ?? '',
+            'coursePlatform': course['Platform']?.toString() ?? '',
+            'courseInstructor': course['Instructor/Institution']?.toString() ?? '',
+            'courseLevel': course['Level']?.toString() ?? '',
+            'courseRating': course['Rating']?.toString() ?? '',
+          };
+        }).toList();
+        recommendedCourses.addAll(updatedTitlesCourses);
+
         // Print all lists with their names
-
-
+        // ...
       } else {
         // Handle API errors here
         print('API Error: ${response.statusCode}, ${response.body}');
@@ -396,7 +422,6 @@ class FirebaseAuthController extends GetxController {
       print('Error sending search words: $e');
     }
   }
-
 
   Future<void> performSignUpTask(User user) async {
     String uid = user.uid;
@@ -410,9 +435,12 @@ class FirebaseAuthController extends GetxController {
           'uid': uid,
           'email': user.email ?? '',
           'phone': phoneController.text ?? '',
-          'educationStatus': selectedEducationStatus.value, // Use selectedEducationStatus directly
+          'educationStatus': selectedEducationStatus
+              .value, // Use selectedEducationStatus directly
           'createdAt': FieldValue.serverTimestamp(),
-          'displayName': user.displayName == '' || user.displayName == null ? nameController.text : user.displayName,
+          'displayName': user.displayName == '' || user.displayName == null
+              ? nameController.text
+              : user.displayName,
           'photoUrl': photoUrl,
         }).then((value) async {
           clearController();
@@ -453,7 +481,7 @@ class FirebaseAuthController extends GetxController {
   Future<bool> checkUserPreferences(String uid) async {
     try {
       DocumentSnapshot<Object?> preferencesData =
-      await _firestore.collection('preferences').doc(uid).get();
+          await _firestore.collection('preferences').doc(uid).get();
       return preferencesData.exists;
     } catch (e) {
       print('Failed to check user preferences: $e');
@@ -461,20 +489,16 @@ class FirebaseAuthController extends GetxController {
     }
   }
 
-
-
-
   Future<bool> updateEmail() async {
     final user = _auth.currentUser!;
     if (user.providerData
         .any((userInfo) => userInfo.providerId == 'password')) {
       // Email and password user
       final authCredential = EmailAuthProvider.credential(
-          email: user!.email!,
-          password: passwordController.text.trim());
-      try{
+          email: user!.email!, password: passwordController.text.trim());
+      try {
         await user.reauthenticateWithCredential(authCredential);
-      } catch(e){
+      } catch (e) {
         print('Incorrect Password: $e');
         showToast('Incorrect Password', '');
         return false;
@@ -550,7 +574,6 @@ class FirebaseAuthController extends GetxController {
       await user.delete();
       print('User email');
 
-
       // Sign out the user
       await _auth.signOut();
       print('User deleted signout');
@@ -562,7 +585,6 @@ class FirebaseAuthController extends GetxController {
       );
     }
   }
-
 
   @override
   void onClose() {
@@ -625,12 +647,13 @@ class FirebaseAuthController extends GetxController {
     }
   }
 
-  Future<User?>signInWithGoogle() async {
+  Future<User?> signInWithGoogle() async {
     try {
       await GoogleSignIn().signOut();
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
       // Obtain the auth details from the request
-      final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+      final GoogleSignInAuthentication? googleAuth =
+          await googleUser?.authentication;
 
       // Create a new credential
       final credential = GoogleAuthProvider.credential(
@@ -640,10 +663,9 @@ class FirebaseAuthController extends GetxController {
 
       // Once signed in, return the UserCredential
       final UserCredential userCredential =
-      await _auth.signInWithCredential(credential);
+          await _auth.signInWithCredential(credential);
       final User firebaseUser = userCredential.user!;
       return firebaseUser;
-
     } catch (e) {
       print(e);
       String errorMessage = handleExceptionError(e);
@@ -652,7 +674,6 @@ class FirebaseAuthController extends GetxController {
       return null;
     }
   }
-
 
   // //sign in with Facebook
   Future<User?> signInWithFacebook() async {

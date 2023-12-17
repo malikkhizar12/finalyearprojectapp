@@ -1,55 +1,56 @@
-  import 'package:course_guide/controllers/firebase_auth_controller.dart';
-  import 'package:flutter/material.dart';
-  import 'package:get/get.dart';
-  import 'package:url_launcher/url_launcher.dart'; // Import url_launcher package
+import 'package:course_guide/controllers/firebase_auth_controller.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart'; // Import url_launcher package
 
-  class CourseDetailPage extends StatelessWidget {
-    CourseDetailPage({Key? key}) : super(key: key);
+class CourseDetailPage extends StatelessWidget {
+  CourseDetailPage({Key? key}) : super(key: key);
 
-    @override
-    Widget build(BuildContext context) {
-      final arguments = Get.arguments;
-      if (arguments != null) {
-        final courseTitle = arguments['courseTitle'];
-        final courseSummary = arguments['courseSummary'];
-        final courseURL = arguments['courseURL'];
-        final coursePlatform = arguments['coursePlatform'];
-        final courseLevel = arguments['courseLevel'];
-        final courseRating = arguments['courseRating'];
-        final courseInstructor = arguments['courseInstructor'];
-        final firebaseAuthController = Get.put(FirebaseAuthController());
-        RxBool isSavingCourse = false.obs;
-        bool isSavedCourse = Get.arguments?['isSavedCourse'] ?? false;
-        return Scaffold(
-          appBar: null,
-          body: Stack(
-            children:[
-              Image.asset(
-                'assets/images/edit_profile_background.webp',// Replace with the path to your background image
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: double.infinity,
-              ),
-             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16),
+  @override
+  Widget build(BuildContext context) {
+    final arguments = Get.arguments;
+    if (arguments != null) {
+      print('NEXT PAGE GETTING ARGUMENTS');
+      print(arguments);
+      Map<String, dynamic> course = Map<String, dynamic>.from(arguments['course']);
+      print(course);
+      bool isSavedCourse = arguments['isSavedCourse'] ?? false;
+      final courseTitle = course['courseName'];
+      final courseSummary = course['courseDescription'];
+      final courseUrl = course['courseUrl'];
+      final coursePlatform = course['coursePlatform'];
+      final courseLevel = course['courseLevel'];
+      final courseRating = course['courseRating'];
+      final courseInstructor = course['courseInstructor'];
+      final firebaseAuthController = Get.put(FirebaseAuthController());
+      RxBool isSavingCourse = false.obs;
+      return Scaffold(
+        appBar: null,
+        body: Stack(
+          children: [
+            Image.asset(
+              'assets/images/edit_profile_background.webp', // Replace with the path to your background image
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: double.infinity,
+            ),
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16),
               child: ListView(
                 children: [
                   SizedBox(height: 20),
                   Center(
                     child: Text(
                       courseTitle.toUpperCase(),
-                      style:const TextStyle(
+                      style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
                       ),
                       textAlign: TextAlign.center,
                     ),
                   ),
-
-
-
                   const SizedBox(height: 25),
-
                   const Text(
                     'Summary:',
                     style: TextStyle(
@@ -65,9 +66,7 @@
                       color: Color(0xFF607D8B),
                     ),
                   ),
-
                   const SizedBox(height: 10),
-
                   const Text(
                     'Platform',
                     style: TextStyle(
@@ -77,15 +76,13 @@
                     ),
                   ),
                   Text(
-
                     coursePlatform,
-                    style:const TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       color: Color(0xFF607D8B),
                     ),
                   ),
                   const SizedBox(height: 10),
-
                   const Text(
                     'Instructor/University',
                     style: TextStyle(
@@ -95,15 +92,13 @@
                     ),
                   ),
                   Text(
-
                     courseInstructor,
-                    style:const TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       color: Color(0xFF607D8B),
                     ),
                   ),
                   const SizedBox(height: 10),
-
                   const Text(
                     'Level',
                     style: TextStyle(
@@ -113,15 +108,13 @@
                     ),
                   ),
                   Text(
-
                     courseLevel,
-                    style:const TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       color: Color(0xFF607D8B),
                     ),
                   ),
                   const SizedBox(height: 10),
-
                   const Text(
                     'Ratings',
                     style: TextStyle(
@@ -131,9 +124,8 @@
                     ),
                   ),
                   Text(
-
                     courseRating,
-                    style:const TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       color: Color(0xFF607D8B),
                     ),
@@ -152,11 +144,11 @@
                               shape: const RoundedRectangleBorder(),
                             ),
                             onPressed: () async {
-                              print(courseURL);
-                              if (await canLaunch(courseURL)) {
-                                await launch(courseURL);
+                              print('courseUrl : $courseUrl');
+                              if (await canLaunchUrl(Uri.parse(courseUrl))) {
+                                await launchUrl(Uri.parse(courseUrl));
                               } else {
-                                print('Could not launch $courseURL');
+                                print('Could not launch $courseUrl');
                               }
                             },
                             child: const Text(
@@ -170,7 +162,6 @@
                           ),
                         ),
                       ),
-
                       const SizedBox(width: 16),
                       Expanded(
                         flex: 1,
@@ -185,63 +176,66 @@
                                   if (isSavedCourse) {
                                     // Delete the course from the dashboard (not Firebase)
                                     Get.back();
-                                    await firebaseAuthController.deleteCourse(courseTitle);
+                                    await firebaseAuthController
+                                        .deleteCourse(courseTitle);
                                   } else {
                                     // Save the course logic here
+                                    print('in course Details Page ');
+                                    print(course.runtimeType);
                                     await firebaseAuthController.saveCourse(
-                                      courseTitle,
-                                      courseSummary,
-                                      courseURL,
-                                      coursePlatform
+                                      course : course
                                     );
                                   }
                                   isSavingCourse.value = false;
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  primary: Colors.red.withOpacity(0.7), // Set the same red color for both buttons
+                                  primary: Colors.red.withOpacity(
+                                      0.7), // Set the same red color for both buttons
                                   shape: const RoundedRectangleBorder(),
                                   textStyle: TextStyle(color: Colors.white),
                                 ),
-
-                                child: Text(isSavedCourse ? 'Delete Course' : 'Save Course',style:const TextStyle(color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,),),
+                                child: Text(
+                                  isSavedCourse
+                                      ? 'Delete Course'
+                                      : 'Save Course',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                             ),
                           );
                         }),
                       ),
-
-
                     ],
                   ),
                 ],
               ),
             ),
-            ],
+          ],
+        ),
+      );
+    } else {
+      return Stack(
+        children: [
+          Image.asset(
+            'assets/images/edit_profile_background.webp', // Replace with the path to your background image
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: double.infinity,
           ),
-        );
-      } else {
-
-        return Stack(
-          children: [
-            Image.asset(
-              'assets/images/edit_profile_background.webp',// Replace with the path to your background image
-              fit: BoxFit.cover,
-              width: double.infinity,
-              height: double.infinity,
-            ),
-           Scaffold(
+          Scaffold(
             appBar: AppBar(
-              title:const Text('Course Details'),
+              title: const Text('Course Details'),
             ),
             body: const Center(
               child: Text('Course details are missing.'),
             ),
           ),
-          ],
-        );
-      }
+        ],
+      );
     }
   }
-
+}

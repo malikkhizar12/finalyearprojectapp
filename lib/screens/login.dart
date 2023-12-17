@@ -18,62 +18,9 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    List<String> recommendedCourseTitles = [];
-    List<String> recommendedCourseSummary = [];
-    List<String> recommendedCourseCost = [];
-    List<String> recommendedCourseDuration = [];
-    List<String> recommendedCourseURL = [];
-    List<String> recommendedCoursePlatform = [];
-    List<Map<String, dynamic>> suggestedCourses = [];
-
-    Future<void> sendSearchWordsToBackend(List<String> searchWords) async {
-<<<<<<< HEAD
-      final apiUrl = 'http://192.168.139.159:5050/suggestions';
-=======
-      final
-      apiUrl = 'http://192.168.18.85:5000/suggestions';
->>>>>>> 5f66970acb1fed438615c6a6e896614a0adedee9
-
-      try {
-        final response = await http.post(
-          Uri.parse(apiUrl),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({'search_words': searchWords}),
-        );
-
-        if (response.statusCode == 200) {
-          List<Map<String, dynamic>> courses = List<Map<String, dynamic>>.from(
-            json.decode(response.body).map((x) => Map<String, dynamic>.from(x)),
-          );
-
-          setState(() {
-            recommendedCourseTitles = courses
-                .map((course) => course['Course Name'].toString())
-                .toList();
-            recommendedCourseSummary = courses
-                .map((course) => course['Course Description'].toString())
-                .toList();
-            recommendedCourseDuration = courses
-                .map((course) => course['course_duration'].toString())
-                .toList();
-            recommendedCourseURL =
-                courses.map((course) => course['Course URL'].toString()).toList();
-            recommendedCoursePlatform =
-                courses.map((course) => course['University'].toString()).toList();
-          });
-          suggestedCourses = courses;
-        } else {
-          print('API Error: ${response.statusCode}, ${response.body}');
-        }
-      } catch (e) {
-        print('Error sending search words: $e');
-      }
-    }
     return SafeArea(
       child: Scaffold(
         body:
-
-
                SingleChildScrollView(
                  child: Container(
                    height: MediaQuery.of(context).size.height,
