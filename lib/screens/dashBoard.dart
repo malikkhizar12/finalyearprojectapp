@@ -97,14 +97,14 @@ class _DashboardState extends State<Dashboard> {
     }
 
     // const apiUrl = 'https://courseguide.cyclic.cloud/recommend';
-    const apiUrl = 'http://192.168.139.159:5050/recommend';
-    // const apiUrl = 'http://192.168.73.159:5000/recommend';
+    // const apiUrl = 'http://192.168.139.159:5050/recommend';
+    const apiUrl = 'http://192.168.18.85:5000/recommend';
     final response = await http.post(
       Uri.parse(apiUrl),
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
         'user_input': customFieldController.text.toLowerCase(),
-        'cost': platformController.text.toLowerCase(),
+        // 'cost': platformController.text.toLowerCase(),
         'level': levelController.text.toLowerCase(),
         'platform' : platformController.text.toLowerCase(),
       }),
@@ -971,16 +971,43 @@ class _DashboardState extends State<Dashboard> {
                         const SizedBox(
                           height: 29,
                         ),
-                        Container(
-                          height: screenHeight * 0.1,
-                          width: screenWidth * 0.9,
-                          // Add your content for the new Container here
-                          decoration: BoxDecoration(
-                            color: Colors.lightBlueAccent.withOpacity(
-                                0.2), // Replace with your desired color
-                            borderRadius: BorderRadius.circular(15.0),
+
+                        GestureDetector(
+                          onTap: () {
+                            // Handle click, navigate to feedback page
+                            // Get.toNamed('/Terms');
+                          },
+                          child: Container(
+                            height: screenHeight * 0.1,
+                            width: screenWidth * 0.9,
+                            decoration: BoxDecoration(
+                              color: Colors.lightBlueAccent.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(15.0),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 16.0),
+                                  child: Text(
+                                    'Terms And Services',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons
+                                      .feedback), // Replace with your desired icon
+                                  onPressed: () {
+                                    // Handle icon click, e.g., open a feedback dialog
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
-                          // Add child widgets for the new Container here
                         ),
                         const SizedBox(
                           height: 29,

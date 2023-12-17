@@ -373,7 +373,7 @@ class FirebaseAuthController extends GetxController {
   }
 
   Future<void> sendSearchWordsToBackend() async {
-    final apiUrl = 'http://192.168.139.159:5050/suggestions';
+    final apiUrl = 'http://192.168.18.85:5000/suggestions';
     List<String> searchWords = await fetchSavedSearchWords();
 
     try {
