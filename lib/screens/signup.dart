@@ -209,10 +209,10 @@ class SignupPage extends StatelessWidget {
                             alignment: Alignment.center,
                             child: TextButton(
                               onPressed: () {
-                                Get.offAllNamed('/login');
+                                Get.toNamed('/login');
                               },
                               child: RichText(
-                                text: TextSpan(
+                                text: const TextSpan(
                                   text: 'Already Have Account? ',
                                   style: TextStyle(color: Colors.black),
                                   children: <TextSpan>[

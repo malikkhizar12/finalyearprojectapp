@@ -17,7 +17,7 @@ class Pages {
     GetPage(name: "/", page: () => SplashScreen(), binding: SplashBinding()),
     GetPage(name: "/login", page: () => const Login(), fullscreenDialog: true),
     GetPage(name: "/welcomeScreen", page: () => const WelcomeScreen(), fullscreenDialog: true),
-    GetPage(name: "/signup", page: () => SignupPage(), fullscreenDialog: true),
+    GetPage(name: "/signup", page: () => SignupPage(), fullscreenDialog: true,),
     GetPage(name: "/dashBoard", page: () =>  Dashboard(),fullscreenDialog: true),
     GetPage(name: '/editProfilePage', page: () => EditProfile(), binding: EditProfileBinding()),
     GetPage(name: '/preferences', page: () =>  PreferencesPage(), binding: PreferencesBinding()),

@@ -5,11 +5,15 @@ import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/simple/get_view.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 
+import '../controllers/edit_profile_controller.dart';
+
 class SplashScreen extends GetView<SplashController> {
   SplashScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final EditProfileController editProfileController = Get.put(EditProfileController());
+    editProfileController.fetchData();
     final height = context.height;
     final width = context.width;
 

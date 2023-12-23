@@ -56,7 +56,8 @@ class WelcomeScreen extends StatelessWidget {
                   height: 45,
                   child: ElevatedButton(
                     onPressed: () {
-                      Get.offAllNamed('/signup');
+                      // Get.offAllNamed('/signup');
+                      Get.toNamed('/signup');
                     },
                     child: Text("SignUp".toUpperCase()),
                     style: ElevatedButton.styleFrom(
@@ -74,7 +75,7 @@ class WelcomeScreen extends StatelessWidget {
                   height: 45,
                   child: ElevatedButton(
                     onPressed: () {
-                      Get.offAllNamed('/login');
+                      Get.toNamed('/login');
                     },
                     child: Text("Login with Email".toUpperCase()),
                     style: ElevatedButton.styleFrom(

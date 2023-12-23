@@ -25,15 +25,9 @@ class CourseDetailPage extends StatelessWidget {
       final firebaseAuthController = Get.put(FirebaseAuthController());
       RxBool isSavingCourse = false.obs;
       return Scaffold(
+        backgroundColor: Color(0xffFBF3EF),
         appBar: null,
-        body: Stack(
-          children: [
-            Image.asset(
-              'assets/images/edit_profile_background.webp', // Replace with the path to your background image
-              fit: BoxFit.cover,
-              width: double.infinity,
-              height: double.infinity,
-            ),
+        body:
             Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16),
@@ -214,8 +208,7 @@ class CourseDetailPage extends StatelessWidget {
                 ],
               ),
             ),
-          ],
-        ),
+
       );
     } else {
       return Stack(

@@ -3,17 +3,17 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:course_guide/controllers/setting_drawer_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
+import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:mailto/mailto.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../controllers/drawer_controller.dart';
+import '../controllers/edit_profile_controller.dart';
 import '../controllers/firebase_auth_controller.dart';
 import '../controllers/preferences_controller.dart';
 import 'package:http/http.dart' as http;
-
 import '../core/collections.dart';
 import '../screens/login.dart';
 
@@ -35,6 +35,7 @@ final TextEditingController customFieldController = TextEditingController();
 final PreferencesController preferencesController = PreferencesController();
 final CustomDrawerController drawerController =
     Get.put(CustomDrawerController());
+final EditProfileController editProfileController = Get.put(EditProfileController());
 final SettingDrawerController settingDrawerController =
     Get.put(SettingDrawerController());
 final FirebaseAuthController firebaseAuthController =
@@ -42,6 +43,7 @@ final FirebaseAuthController firebaseAuthController =
 FirebaseAuthController authController = FirebaseAuthController();
 final controller = Get.find<FirebaseAuthController>();
 final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+String userId = FirebaseAuth.instance.currentUser?.uid ?? "";
 GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 int numberOfCoursesToShow = 2;
 bool showAllCourses = false;
@@ -70,6 +72,20 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   // Initial state
   PageState _currentPageState = PageState.State2;
+  String? userName;
+
+  @override
+  void initState() {
+    super.initState();
+    loadUserName();
+  }
+
+  Future<void> loadUserName() async {
+    String? name = await authController.getCurrentUserName();
+    setState(() {
+      userName = name;
+    });
+  }
   Future<void> fetchRecommendedCourses() async {
     setState(() {
       isFetchingRecommendations = true;
@@ -97,8 +113,8 @@ class _DashboardState extends State<Dashboard> {
     }
 
     // const apiUrl = 'https://courseguide.cyclic.cloud/recommend';
-    // const apiUrl = 'http://192.168.139.159:5050/recommend';
-    const apiUrl = 'http://192.168.18.85:5000/recommend';
+    // const apiUrl = 'http://192.168.110.228:5000/recommend';
+    const apiUrl = 'https://5af2-111-68-98-167.ngrok-free.app/recommend';
     final response = await http.post(
       Uri.parse(apiUrl),
       headers: {'Content-Type': 'application/json'},
@@ -146,7 +162,9 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
+      backgroundColor: Color(0xffFBF3EF),
       extendBodyBehindAppBar: true,
       body: _buildBody(),
       bottomNavigationBar: Container(
@@ -203,16 +221,13 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget _buildBody() {
+    String? userId = controller.getCurrentUserId();
+
+    final size = MediaQuery.of(context).size;
     Color backgroundColor;
     switch (_currentPageState) {
       case PageState.State1:
-        return Stack(children: [
-          Image.asset(
-            'assets/images/edit_profile_background.webp', // Replace with the path to your background image
-            fit: BoxFit.cover,
-            width: double.infinity,
-            height: double.infinity,
-          ),
+        return
           SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -223,21 +238,24 @@ class _DashboardState extends State<Dashboard> {
                   Text(
                     "Course Guide ".toUpperCase(),
                     style: const TextStyle(
-                      fontSize: 29,
+                      fontSize: 37,
                       color: Colors.redAccent,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 35),
-                  Text(
-                    "search for Best Courses ".toUpperCase(),
-                    style: const TextStyle(
-                      fontSize: 22,
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
+                  const SizedBox(height: 45),
+
+
+                     Text(
+                      "search for Best Courses ".toUpperCase(),
+                      style: const TextStyle(
+                        fontSize: 26,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
+
+                  const SizedBox(height: 16),
                   Form(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -298,6 +316,7 @@ class _DashboardState extends State<Dashboard> {
                                     // Save the search term before triggering the search
                                     String searchWord =
                                         customFieldController.text;
+                                    if(searchWord.isNotEmpty ) {
 
                                     // Call the function to save the search word
                                     await authController
@@ -307,7 +326,13 @@ class _DashboardState extends State<Dashboard> {
                                     // savedSearchWords.add(searchWord);
 
                                     // Trigger the search
-                                    await fetchRecommendedCourses();
+
+                                      await fetchRecommendedCourses();
+                                    }
+                                    else
+                                      {
+                                        showEmptyFieldDialog(context);
+                                      }
                                   },
                             child: isFetchingRecommendations
                                 ? const CircularProgressIndicator()
@@ -322,7 +347,7 @@ class _DashboardState extends State<Dashboard> {
                                         ),
                                   ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red.withOpacity(0.7),
+                              backgroundColor: Colors.black.withOpacity(0.7),
                               shape: const RoundedRectangleBorder(),
                             ),
                           ),
@@ -438,17 +463,11 @@ class _DashboardState extends State<Dashboard> {
                 ],
               ),
             ),
-          ),
-        ]);
+          );
 
       case PageState.State2:
-        return Stack(children: [
-          Image.asset(
-            'assets/images/edit_profile_background.webp',
-            fit: BoxFit.cover,
-            width: double.infinity,
-            height: double.infinity,
-          ),
+        return
+
           SingleChildScrollView(
             child: Container(
               padding: const EdgeInsets.all(29),
@@ -456,42 +475,76 @@ class _DashboardState extends State<Dashboard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(
-                    height: 15,
+                    height: 25,
                   ),
-                  const Text(
-                    "DashBoard",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 35,
-                      color: Colors.redAccent,
+                    const Text(
+                      "DASHBOARD",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 45,
+                        color: Colors.redAccent,
+                      ),
                     ),
-                  ),
+
                   const SizedBox(
-                    height: 40,
+                    height: 35,
                   ),
-                  Container(
-                    child: TextFormField(
-                      style: const TextStyle(color: Colors.black),
-                      decoration: const InputDecoration(
-                        labelText: "Search",
-                        hintText: "Search",
-                        labelStyle: TextStyle(color: Colors.black),
-                        hintStyle: TextStyle(color: Colors.black),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide:
-                              BorderSide(color: Colors.black, width: 2.0),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide:
-                              BorderSide(color: Colors.black, width: 2.0),
-                        ),
-                        suffixIcon:
-                            Icon(Icons.search_rounded, color: Colors.black),
+                  Card(
+                    elevation: 5.0, // Set the elevation for the card
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0), // Set the border radius for rounded corners
+                      side: BorderSide(
+                        color: Colors.grey, // Set the border color
+                        width: 1.0, // Set the border width
+                      ),
+                    ),
+                    child: Container(
+                      padding: EdgeInsets.all(20.0), // Add padding for the content inside the card
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15.0), // Set the border radius for rounded corners
+                        color: Colors.white, // Set the background color
+                      ),
+                      child: Row(
+                        children: [
+                          // Other widgets in your Container...
+
+                          // Display "Welcome" text
+                          Text(
+                            'WELCOME:',
+                            style: TextStyle(
+                              fontSize: 26.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                          // Display user's name
+                          Expanded(
+                            child: Text(
+                              userName != null ? ' ${userName!.toUpperCase()}' : 'GUEST',
+                              style: TextStyle(
+                                fontSize: 27.0,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.red,
+                              ),
+                            ),
+                          ),
+
+                          // Other widgets in your Container...
+                        ],
                       ),
                     ),
                   ),
+
+
+
+
+
+
+
+
+
                   const SizedBox(
-                    height: 15,
+                    height: 35,
                   ),
                   Text(
                     "Saved Courses",
@@ -629,8 +682,8 @@ class _DashboardState extends State<Dashboard> {
                                           limitTitle(courseName,
                                               8), // Limit to 2 words
                                           style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 14,
+                                            fontWeight: FontWeight.w800,
+                                            fontSize: 17,
                                             color: Color(0xFF37474F),
                                           ),
                                           maxLines:
@@ -754,7 +807,7 @@ class _DashboardState extends State<Dashboard> {
                                 //   courseTitle ?? 'Default Title',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 10, // Lowered font size
+                                  fontSize: 14, // Lowered font size
                                   color: Color(0xFF37474F),
                                 ),
                                 maxLines: 2, // Limit to 2 lines
@@ -782,8 +835,7 @@ class _DashboardState extends State<Dashboard> {
                 ],
               ),
             ),
-          ),
-        ]);
+          );
 
       case PageState.State3:
         backgroundColor = Colors.orange;
@@ -800,7 +852,7 @@ class _DashboardState extends State<Dashboard> {
                   children: [
                     // Background Image
                     Image.asset(
-                      'assets/images/profile_background.webp', // Replace with the actual path to your image asset
+                      'assets/images/profile_background_new.webp', // Replace with the actual path to your image asset
                       height: double.infinity,
                       width: double.infinity,
                       fit: BoxFit.cover,
@@ -826,9 +878,11 @@ class _DashboardState extends State<Dashboard> {
 
               // Second Row (70% of the page)
               Container(
+
                 margin: EdgeInsets.only(top: screenHeight * 0.28),
                 height: screenHeight * 0.72,
-                color: Colors.white,
+                color: Color(0xffFBF3EF),
+
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 18.0),
                   child: SingleChildScrollView(
@@ -975,7 +1029,7 @@ class _DashboardState extends State<Dashboard> {
                         GestureDetector(
                           onTap: () {
                             // Handle click, navigate to feedback page
-                            // Get.toNamed('/Terms');
+                            Get.toNamed('/Terms');
                           },
                           child: Container(
                             height: screenHeight * 0.1,
@@ -1179,7 +1233,25 @@ class _DashboardState extends State<Dashboard> {
       ),
     );
   }
-
+  void showEmptyFieldDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Enter Course Name or Keyword'),
+          content: const Text('Please enter a course name or keyword to search.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
   Color _getIconColor(PageState state) {
     return _currentPageState == state ? Colors.pink : Colors.black54;
   }

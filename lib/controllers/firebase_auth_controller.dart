@@ -44,12 +44,46 @@ class FirebaseAuthController extends GetxController {
   final box = GetStorage();
   RxList recommendedCourses = [].obs;
 
+
   saveEmailPassword({required bool rememberMe}) {
     if (rememberMe) {
       box.write('email', emailController.text);
       box.write('password', passwordController.text);
     }
   }
+  String? getCurrentUserId() {
+    User? user = _auth.currentUser;
+    if (user != null) {
+      String userId = user.uid;
+      return userId;
+    } else {
+      // User is not logged in
+      return null;
+    }
+  }
+  Future<String?> getCurrentUserName() async {
+    User? user = _auth.currentUser;
+    if (user != null) {
+      // Assuming you have a method to retrieve user data from Firestore
+      // Adjust the implementation according to your Firestore setup
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+
+      // Explicitly cast the data to Map<String, dynamic>
+      Map<String, dynamic>? userData = userSnapshot.data() as Map<String, dynamic>?;
+
+      // Check if the document exists and contains a 'displayName' field
+      if (userSnapshot.exists && userData != null && userData.containsKey('displayName')) {
+        return userData['displayName'] as String?;
+      } else {
+        // Handle the case when the user's display name is not found
+        return null;
+      }
+    } else {
+      // User is not logged in
+      return null;
+    }
+  }
+
 
   void setSelectedEducationStatus(String? newValue) {
     selectedEducationStatus.value = newValue ?? '';
@@ -247,40 +281,69 @@ class FirebaseAuthController extends GetxController {
   //   }
   // }
   Future<void> saveSearchWord(String searchWord) async {
-    // Reference to the Firestore collection where you want to store search words
-    CollectionReference searchWordsCollection =
-        FirebaseFirestore.instance.collection('searchWords');
-
-    // Add the search word to Firestore
-    await searchWordsCollection.add({
-      'word': searchWord,
-      'timestamp': FieldValue
-          .serverTimestamp(), // Optional: Add a timestamp for sorting or tracking when the search occurred
-    });
-    print("search words saved");
+    try {
+      // Reference to the Firestore collection where you want to store search words
+      CollectionReference searchWordsCollection =
+      FirebaseFirestore.instance.collection('searchWords');
+  String? userId = getCurrentUserId();
+      // Add the search word to Firestore along with the user ID
+      await searchWordsCollection.add({
+        'userId': userId,
+        'word': searchWord,
+        'timestamp': FieldValue
+            .serverTimestamp(), // Optional: Add a timestamp for sorting or tracking when the search occurred
+      });
+      print("search words saved");
+    } catch (e) {
+      print('Error saving search word: $e');
+    }
   }
+
 
   Future<List<String>> fetchSavedSearchWords() async {
     try {
       // Reference to the Firestore collection where search words are stored
       CollectionReference searchWordsCollection =
-          FirebaseFirestore.instance.collection('searchWords');
-
-      // Fetch all documents from the collection
-      QuerySnapshot<Object?> snapshot = await searchWordsCollection.get();
+      FirebaseFirestore.instance.collection('searchWords');
+      String? userId = getCurrentUserId();
+      print('Fetching search words for user ID: $userId');
+      // Fetch documents for the specific user ID
+      QuerySnapshot<Object?> snapshot = await searchWordsCollection
+          .where('userId', isEqualTo: userId)
+          .get();
 
       // Extract search words from the documents
-      List<String> searchWords =
-          snapshot.docs.map((doc) => doc['word'] as String).toList();
+      List<String> allSearchWords =
+      snapshot.docs.map((doc) => doc['word'] as String).toList();
 
-      // Optionally, you can print the search words
+      // Count the occurrences of each word
+      Map<String, int> wordCount = {};
+      allSearchWords.forEach((word) {
+        wordCount[word] = (wordCount[word] ?? 0) + 1;
+      });
 
-      return searchWords;
+      // Filter words that have been searched 2 or more times
+      List<String> filteredWords = wordCount.entries
+          .where((entry) => entry.value >= 2)
+          .map((entry) => entry.key)
+          .toList();
+
+      // Take up to 5 words, or all words if there are 5 or fewer
+      List<String> topSearchWords =
+      filteredWords.length <= 5 ? filteredWords : filteredWords.take(5).toList();
+
+      // Optionally, you can print the top search words
+      print('Top search words for user $userId: $topSearchWords');
+
+      return topSearchWords;
     } catch (e) {
-      print('Error fetching saved search words: $e');
+      print('Error fetching top search words: $e');
       return [];
     }
   }
+
+
+
 
   Future<void> signupWithEmailPassword(BuildContext context) async {
     if (!signupFormKey.currentState!.validate()) {
@@ -373,9 +436,11 @@ class FirebaseAuthController extends GetxController {
   }
 
   Future<void> sendSearchWordsToBackend() async {
-    final apiUrl = 'http://192.168.18.85:5000/suggestions';
-    List<String> searchWords = await fetchSavedSearchWords();
+    final apiUrl = 'https://5af2-111-68-98-167.ngrok-free.app/suggestions';
+    // final apiUrl = 'http://192.168.110.228:5000/suggestions';
 
+    List<String> searchWords = await fetchSavedSearchWords();
+print(searchWords);
     try {
       final response = await http.post(
         Uri.parse(apiUrl),

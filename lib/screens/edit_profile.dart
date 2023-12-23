@@ -24,16 +24,9 @@ class EditProfile extends GetView<EditProfileController> {
       },
       child: Scaffold(
         key: controller.scaffoldKey,
+        backgroundColor: Color(0xffFBF3EF),
 
         body:
-        Stack(
-          children: [
-            Image.asset(
-              'assets/images/edit_profile_background.webp',// Replace with the path to your background image
-              fit: BoxFit.cover,
-              width: double.infinity,
-              height: double.infinity,
-            ),
            SingleChildScrollView(
 
             child: Center(
@@ -137,6 +130,7 @@ class EditProfile extends GetView<EditProfileController> {
                           ),
                           child: TextFormField(
                             controller: controller.emailController,
+                            enabled: false,
                             decoration: InputDecoration(
                               labelText: "Email",
                               border: InputBorder.none, // Remove the default border of the TextFormField
@@ -201,7 +195,7 @@ class EditProfile extends GetView<EditProfileController> {
                               }
 
                             },
-                            child: Text("Update".toUpperCase()),
+                            child: Text("Update".toUpperCase(),style: TextStyle(color: Colors.white,fontSize: 16,fontWeight: FontWeight.bold),),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.red.withOpacity(0.7),
                               shape: const RoundedRectangleBorder(),
@@ -218,8 +212,7 @@ class EditProfile extends GetView<EditProfileController> {
 
             ),
           ),
-          ]
-        ),
+
 
       ),
     );

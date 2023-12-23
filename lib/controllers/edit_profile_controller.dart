@@ -26,7 +26,7 @@ class EditProfileController extends GetxController {
   }
   Future<void> fetchData() async {
     print(firebaseUserId());
-    print('HI');
+
         var data = await usersCollection.doc(firebaseUserId()).get();
         String name = data['displayName'];
         nameController.text = name;

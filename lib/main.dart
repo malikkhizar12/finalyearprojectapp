@@ -27,7 +27,6 @@ class MyApp extends StatelessWidget {
       initialBinding: InitialBinding(),
       getPages: Pages.all,
       debugShowCheckedModeBanner: false,
-
     );
   }
 }

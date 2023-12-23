@@ -1,3 +1,4 @@
+
 import 'package:course_guide/controllers/edit_profile_controller.dart';
 import 'package:course_guide/controllers/preferences_controller.dart';
 import 'package:course_guide/controllers/setting_controllers.dart';
@@ -25,6 +26,7 @@ class EditProfileBinding extends Bindings {
     Get.lazyPut(() => EditProfileController());
   }
 }
+
 class SettingBinding extends Bindings {
   @override
   void dependencies() {

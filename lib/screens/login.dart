@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -20,6 +19,7 @@ class _LoginState extends State<Login> {
     final size = MediaQuery.of(context).size;
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Color(0xffFBF3EF),
         body:
                SingleChildScrollView(
                  child: Container(
@@ -92,7 +92,7 @@ class _LoginState extends State<Login> {
                               alignment: Alignment.center,
                               child: TextButton(
                                 onPressed: () {
-                                  Get.offAllNamed('/signup');
+                                  Get.toNamed('/signup');
                                 },
                                 child: RichText(
                                   text: const TextSpan(
@@ -118,8 +118,11 @@ class _LoginState extends State<Login> {
                ),
       ),
     );
+
   }
+
 }
+
 
 class PasswordTextField extends StatefulWidget {
   final TextEditingController controller;
