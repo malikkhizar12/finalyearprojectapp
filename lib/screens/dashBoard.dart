@@ -114,7 +114,7 @@ class _DashboardState extends State<Dashboard> {
 
     // const apiUrl = 'https://courseguide.cyclic.cloud/recommend';
     // const apiUrl = 'http://192.168.110.228:5000/recommend';
-    const apiUrl = 'https://5af2-111-68-98-167.ngrok-free.app/recommend';
+    const apiUrl = 'https://35d6-2400-adcc-909-2e00-e08c-b547-788a-5918.ngrok-free.app/recommend';
     final response = await http.post(
       Uri.parse(apiUrl),
       headers: {'Content-Type': 'application/json'},
@@ -347,7 +347,7 @@ class _DashboardState extends State<Dashboard> {
                                         ),
                                   ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.black.withOpacity(0.7),
+                              backgroundColor: Colors.red.withOpacity(0.7),
                               shape: const RoundedRectangleBorder(),
                             ),
                           ),

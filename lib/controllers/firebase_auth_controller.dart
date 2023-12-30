@@ -436,7 +436,7 @@ class FirebaseAuthController extends GetxController {
   }
 
   Future<void> sendSearchWordsToBackend() async {
-    final apiUrl = 'https://5af2-111-68-98-167.ngrok-free.app/suggestions';
+    const apiUrl = 'https://35d6-2400-adcc-909-2e00-e08c-b547-788a-5918.ngrok-free.app/suggestions';
     // final apiUrl = 'http://192.168.110.228:5000/suggestions';
 
     List<String> searchWords = await fetchSavedSearchWords();
